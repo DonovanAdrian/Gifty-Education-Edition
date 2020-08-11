@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="img/giftyiconweb.png">
+  <link href="css/main.css" rel="stylesheet" type="text/css"/>
+  <title>Help/FAQ</title>
+
+  <script src="js/faqAlg.js" type="text/javascript"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.8.6/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-analytics.js"></script>
+
+  <div class="topnav">
+    <ul>
+      <li><div class="cropIcon"><img class="imgIcon" src="img/giftyicon.png"></div></li>
+      <div class="break"></div>
+      <li><a onclick="navigation(0)">Home</a></li>
+      <li><a onclick="navigation(1)">Lists</a></li>
+      <li><a onclick="navigation(2)" id="inviteNote">Invites</a></li>
+      <li><a class="active" onclick="navigation(3)" id="settingsNote">Settings</a></li>
+      <li><a class="signOut" onclick="signOut()">Sign Out</a></li>
+    </ul>
+  </div>
+</head>
+<body>
+
+<div class="faqContainer">
+  <p class="faqInf">FAQ</p>
+  <p class="faqInfSpec">Welcome to Gifty! Below are some common questions that people asked me.</p>
+  <p class="faqInf">How do I add a gift to my list?</p>
+  <p class="faqInfSpec">On the "Home" page, you can click or tap the "Add Gift" button to add a gift to your list.
+    You will be brought to another page where you can fill out any necessary information that will help others
+    find the gift you are asking for.</p>
+  <p class="faqInf">How do I invite friends to see my list?</p>
+  <p class="faqInfSpec">On the "Invite" page, you can click or tap the "Send Invite" button to invite a friend
+    to your friend list. You will need your friend's user name in order to invite them, so be sure that you type it in
+    correctly. Otherwise the system will not know which user you are trying to invite. Once they accept your friend
+    request, their name will be added to your "Lists" and "Invites" page and will be able to see your list.</p>
+  <p class="faqInf">How do I view someone else's friend list?</p>
+  <p class="faqInfSpec">Once you have some friends on your friend list, the "Lists" page will show anyone that has
+    accepted your friend request. If you click on their name and they have gifts in their list, you will be brought
+    to their friend list. On this page you can click on each gift to see details and you can choose to buy/unbuy
+    a gift. That user will not see that you bought that gift, though, so you don't have to worry about them finding out!</p>
+  <p class="faqInf">How do I remove a friend from my friend list?</p>
+  <p class="faqInfSpec">Once you have some friends on your friend list, the "Invites" page will show anyone that has
+    accepted your friend request. If you click on their name, you will be shown their public account details. In
+    addition, you can click on "Remove Access" to remove that user from your friend list.</p>
+  <p class="faqInf">Something went wrong and I'm not sure why! (or) I have a suggestion to improve Gifty!</p>
+  <p class="faqInfSpec">If you are in need of assistance or just want to send me a suggestion, feel free to email me
+    below! An email dialog will automatically pop up for you with some example text filled in. Thanks for helping me
+    make this app better!</p><br/><br/>
+  <span class="faqBtn" id="emailBtn">Email Me</span>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+</div>
+
+
+
+<div id="myModal" class="modal">
+  <div class="modal-content">
+
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h2 id="giftTitle">Loading Title...</h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p id="giftLink">Loading Link...</p>
+      <p id="giftWhere">Loading Where...</p>
+      <p id="giftDescription">Loading Description...</p>
+    </div>
+
+    <!--Modal Footer-->
+    <div class="modal-footer">
+      <h3 style="float: left;padding-left: 10px" id="giftBuy">Buy</h3>
+      <h3 style="float: right;padding-right: 10px" id="giftDontBuy">Don't Buy</h3>
+    </div>
+  </div>
+</div>
+
+<div id="offlineModal" class="modal">
+  <div class="modal-content">
+
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span class="close" id="closeOffline">&times;</span>
+      <h2>It appears that you are offline!</h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p>Please reconnect to the internet in order to use Gifty properly!</p>
+    </div>
+  </div>
+</div>
+
+<div id="notificationModal" class="modal">
+  <div class="modal-content">
+
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span class="close" id="closeNotification">&times;</span>
+      <h2 id="notificationTitle"></h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p id="notificationInfo"></p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

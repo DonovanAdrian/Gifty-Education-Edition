@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="img/giftyiconweb.png">
+  <link href="css/main.css" rel="stylesheet" type="text/css"/>
+  <title>Invites</title>
+
+  <script src="js/invitesAlg.js" type="text/javascript"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.8.6/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-analytics.js"></script>
+
+  <div class="topnav">
+    <ul>
+      <li><div class="cropIcon"><img class="imgIcon" src="img/giftyicon.png"></div></li>
+      <div class="break"></div>
+      <li><a onclick="navigation(0)">Home</a></li>
+      <li><a onclick="navigation(1)" id="listNote">Lists</a></li>
+      <li><a class="active" onclick="navigation(2)" id="inviteNote">Invites</a></li>
+      <li><a onclick="navigation(3)">Settings</a></li>
+      <li><a class="signOut" onclick="signOut()">Sign Out</a></li>
+    </ul>
+  </div>
+</head>
+<body>
+
+<ul id="userListContainer" class="giftList">
+  <li class="gift" id="TestGift">Loading...</li>
+</ul>
+
+<span class="addBtn" id="addUser">Loading... Please Wait</span>
+
+<div class="centeredImage">
+  <img class="notificationIcon" id="notificationButton" src="img/bellNotificationOff.png">
+</div>
+
+<img src="img/newInvite.png" class="newInvite" id="newInviteIcon">
+
+<div id="myModal" class="modal">
+  <div class="modal-content">
+
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h2 id="userName">Loading Name...</h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p id="userUName">Loading UserName...</p>
+      <p id="userShareCode">Loading Where...</p>
+    </div>
+
+    <!--Modal Footer-->
+    <div class="modal-footer">
+      <h3 style="float: left;padding-left: 10px" id="sendPrivateMessage">Send Message</h3>
+      <h3 style="float: right;padding-right: 10px" id="userInviteRemove">Remove Access</h3>
+    </div>
+  </div>
+</div>
+
+<div id="userInviteModal" class="modal">
+  <div class="modal-content">
+
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h2>Enter User Name Below</h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p></p>
+      <input type="text" id="userNameInp" placeholder="User Name" class="giftInp">
+      <p id="inviteInfo"></p>
+    </div>
+
+    <!--Modal Footer-->
+    <div class="modal-footer">
+      <h3 style="float: left;padding-left: 10px" id="addInvite">Add</h3>
+      <h3 style="float: right;padding-right: 10px" id="cancelInvite">Cancel</h3>
+    </div>
+  </div>
+</div>
+
+<div id="userModal" class="modal">
+  <div class="modal-content">
+
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span id="privateNoteSpan" class="close">&times;</span>
+      <h2 id="privateNoteTitle">Send Private Message Below</h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p></p>
+      <input type="text" id="privateNoteInp" placeholder="Hey! Just wanted to let you know..." class="giftInp">
+      <p></p>
+    </div>
+
+    <!--Modal Footer-->
+    <div class="modal-footer">
+      <h3 style="float: left;padding-left: 10px" id="sendNote">Send</h3>
+      <h3 style="float: right;padding-right: 10px" id="cancelNote">Cancel</h3>
+    </div>
+  </div>
+</div>
+
+<div id="confirmModal" class="modal">
+  <div class="modal-content">
+
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h2>Confirm User Name Below</h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p id="confUserName">Loading User Name...</p>
+    </div>
+
+    <!--Modal Footer-->
+    <div class="modal-footer">
+      <h3 style="float: left;padding-left: 10px" id="inviteConfirm">Yes</h3>
+      <h3 style="float: right;padding-right: 10px" id="inviteDeny">No</h3>
+    </div>
+  </div>
+</div>
+
+<div id="offlineModal" class="modal">
+  <div class="modal-content">
+
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span class="close" id="closeOffline">&times;</span>
+      <h2>It appears that you are offline!</h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p>Please reconnect to the internet in order to use Gifty properly!</p>
+    </div>
+  </div>
+</div>
+
+<div id="notificationModal" class="modal">
+  <div class="modal-content">
+
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span class="close" id="closeNotification">&times;</span>
+      <h2 id="notificationTitle"></h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p id="notificationInfo"></p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

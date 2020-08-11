@@ -1,0 +1,12 @@
+{
+  "short_name": "Gifty",
+  "name": "Gifty",
+  "icons": [{
+    "src": "img/giftyicon.png",
+    "type": "image/png",
+    "sizes": "480x480"
+  }],
+  "start_url": "/?utm_source=homescreen",
+  "background_color": "#fafafa",
+  "theme_color": "#fafafa"
+}

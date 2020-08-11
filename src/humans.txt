@@ -1,0 +1,15 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    Donovan Adrian -- Main Developer -- GitHub.com/DonovanAdrian
+
+# THANKS
+
+    To my family for all the unending support in this development process!
+
+# TECHNOLOGY COLOPHON
+
+    CSS3, HTML5, JavaScript
+    Apache Server Configs, jQuery, AJAX
