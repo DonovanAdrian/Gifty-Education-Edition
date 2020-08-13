@@ -5,7 +5,7 @@
 ## ***Task List***
 - [ ] Add Helpful Comments
   - [x] index.html
-  - [ ] userAddUpdate.html
+  - [x] userAddUpdate.html
   - [ ] home.html 
   - [ ] giftAddUpdate.html
   - [ ] lists.html

@@ -1,36 +1,45 @@
-var listeningFirebaseRefs = [];
-var userNameArr = [];
-var userKeyArr = [];
-var userData = [];
+/*
+Welcome to the userAddUpdate page! This is the page that does all the leg work for creating, updating, and deleting
+user data. As such, this has to be used for BOTH new users and old users, and is programmed to do just that. At some
+point, I would like to be able to update all of the pages to have more than just one function, but that's something for
+another day.
 
-var userNameBool = true;
-var areYouStillThereBool = false;
+As always, all the necessary declarations are as follows!
+ */
 
-var pinClearedInt = 0;
-var logoutReminder = 300;
-var logoutLimit = 900;
+var listeningFirebaseRefs = [];         //An array that stores locations in the database that need to be listened to
+var userNameArr = [];                   //An array that stores userNames for use in the checkUserNames() function
+var userArr = [];                       //An array that stores all the user data that is fetched from the database
 
-var offlineSpan;
-var offlineModal;
-var confirmSpan;
-var confirmModal;
-var deleteConfirm;
-var deleteDeny;
-var nameField;
-var userNameField;
-var pinField;
-var pinconfField;
-var btnUpdate;
-var btnDelete;
-var userInitial;
-var user;
-var noteModal;
-var noteInfoField;
-var noteTitleField;
-var noteSpan;
+var userNameBool = true;                //A global boolean used to verify whether a userName is taken or not
+var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
+
+var pinClearedInt = 0;                  //An integer used to tell whether the pin field has been cleared
+var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
+var logoutLimit = 900;                  //The maximum limit to logout the user after being inactive for too long
+
+var offlineSpan;                        //Stores the "X" object on the "Offline" window
+var offlineModal;                       //Stores the "Offline" window object on the webpage
+var confirmSpan;                        //Stores the "X" object on the "Confirmation" window
+var confirmModal;                       //Stores the "Confirmation" window object on the webpage
+var deleteConfirm;                      //Stores the "Confirm" button on the "Confirmation" window object
+var deleteDeny;                         //Stores the "Deny" button on the "Confirmation" window object
+var nameField;                          //Stores the "Name" input field on the webpage
+var userNameField;                      //Stores the "UserName" input field on the webpage
+var pinField;                           //Stores the "Pin" input field on the webpage
+var pinconfField;                       //Stores the "Confirm Pin" input field on the webpage
+var btnUpdate;                          //Stores the "Update" object on the webpage
+var btnDelete;                          //Stores the "Delete" object on the webpage
+var userInitial;                        //Tells the webpage where to look in the database for data
+var user;                               //Stores an authenticated user's data
+var noteModal;                          //Stores the "Notification" window object on the webpage
+var noteInfoField;                      //Stores the "Info" field on the "Notification" window object
+var noteTitleField;                     //Stores the "Title" field on the "Notification" window object
+var noteSpan;                           //Stores the "X" object on the "Notification" window
 
 
-
+//If a user accesses this page from the settings, this will load their data from local storage.
+//This function also updates the necessary objects on the webpage as well as the login timer
 function getCurrentUser(){
   try {
     user = JSON.parse(sessionStorage.validUser);
@@ -52,6 +61,9 @@ function getCurrentUser(){
 
     loginTimer(); //if action, then reset timer
 
+
+    //This function controls how long the user has been inactive for and reminds them that they have been inactive
+    //after a certain amount of time. If the user is inactive for too long, they will be logged out
     function loginTimer(){
       var loginNum = 0;
       console.log("Login Timer Started");
@@ -75,14 +87,17 @@ function getCurrentUser(){
           areYouStillThereBool = true;
         }
         function resetTimer() {
-          if (areYouStillThereBool)
-          //console.log("User Active");
+          if (areYouStillThereBool) {
             ohThereYouAre();
+          }
           loginNum = 0;
         }
       }, 1000);
     }
 
+
+    //This function closes any open modals and opens the notification modal to tell the user that they have
+    //been inactive for too long.
     function areYouStillThereNote(timeElapsed){
       var timeRemaining = logoutLimit - timeElapsed;
       var timeMins = Math.floor(timeRemaining/60);
@@ -105,6 +120,8 @@ function getCurrentUser(){
       };
     }
 
+
+    //This function edits the notification modal to welcome the user back after being inactive
     function ohThereYouAre(){
       noteInfoField.innerHTML = "Welcome back, " + user.name;
       noteTitleField.innerHTML = "Oh, There You Are!";
@@ -132,7 +149,9 @@ function getCurrentUser(){
   }
 }
 
-//Instantiates all data upon loading the webpage
+
+//This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
+//from the indexAlg is fetched here to reconnect to the database. The database is also queried in the same function.
 window.onload = function instantiate() {
 
   nameField = document.getElementById('name');
@@ -212,15 +231,18 @@ window.onload = function instantiate() {
 
   databaseQuery();
 
+
+//This is the function where all the data is accessed and put into arrays. Those arrays are also updated and removed
+//as new data is received. New data is checked through the "listeningFirebaseRefs" array, as this is where database
+//locations are stored and checked on regularly.
   function databaseQuery() {
 
     userInitial = firebase.database().ref("users/");
 
     var fetchData = function (postRef) {
       postRef.on('child_added', function (data) {
-        userData.push(data.val());
+        userArr.push(data.val());
         userNameArr.push(data.val().userName);
-        userKeyArr.push(data.key);
 
         if(user != null) {
           if (data.key == user.uid) {
@@ -241,6 +263,8 @@ window.onload = function instantiate() {
         if(userArr[i] != data.val() && i != -1){
           console.log("Updating " + userArr[i].userName + " to most updated version: " + data.val().userName);
           userArr[i] = data.val();
+
+          userNameArr[i] = data.val().userName;
         }
 
         if(user != null) {
@@ -249,31 +273,11 @@ window.onload = function instantiate() {
             console.log("User Updated: 2");
           }
         }
-
-        i = findItemInArr(data.key, userKeyArr);
-        console.log("Update userNameArr " + userNameArr[i] + " with data " + data.val().userName + "?");
-        if(userNameArr[i] != data.val().userName){
-          console.log("Yes!");
-          console.log(userNameArr);
-          userNameArr[i] = data.val().userName;
-          console.log(userNameArr);
-          console.log(".........Deleted?");
-        } else {
-          console.log("No! UserName does not need to be updated");
-        }
       });
 
       postRef.on('child_removed', function (data) {
         var i = findUIDItemInArr(data.key, userArr);
-        if(userArr[i] != data.val() && i != -1){
-          console.log("Removing " + userArr[i].userName + " / " + data.val().userName);
-          userArr.splice(i, 1);
-        }
-
-        i = findItemInArr(data.key, userKeyArr);
-        console.log("Delete user " + userKeyArr[i] + ", " + data.val().userName  + ", from userNameArr: "
-          + userNameArr[i]);
-        userKeyArr.splice(i, 1);
+        userArr.splice(i, 1);
         userNameArr.splice(i, 1);
       });
     };
@@ -283,6 +287,9 @@ window.onload = function instantiate() {
     listeningFirebaseRefs.push(userInitial);
   }
 
+
+    //This function is called from the databaseQuery() function and helps find the index of a user's data to properly
+    //update or remove it from the userArr array.
   function findUIDItemInArr(item, userArray){
     for(var i = 0; i < userArray.length; i++){
       if(userArray[i].uid == item){
@@ -292,25 +299,17 @@ window.onload = function instantiate() {
     }
     return -1;
   }
-
-  function findItemInArr(item, array){
-    for(var i = 0; i < array.length; i++){
-      if(array[i] == item){
-        console.log("Found item: " + item);
-        return i;
-      }
-    }
-  }
 };
 
+
+//This function is called once the "Delete" button is clicked. It double checks the user's decision to delete their
+//user account. If so, the user will be removed from the database. If not, the window will close with no further action.
 function deleteCheck(){
 
   console.log(user.uid + " will be deleted. Are you sure?");
   confirmModal.style.display = "block";
 
   deleteConfirm.onclick = function () {
-    //REMOVE UID FROM GIFT LISTS, FRIEND LISTS, AND INVITE LISTS
-
     console.log("Confirmed to delete user " + user.uid);
     firebase.database().ref("users/").child(user.uid).remove();
     confirmModal.style.display = "none";
@@ -341,6 +340,10 @@ function deleteCheck(){
   }
 }
 
+
+//This function is called once the "Update" button is clicked. It first double checks all user names to ensure that the
+//chosen user name has not been taken. It then checks for empty fields and proper pin syntax. Once complete, the user
+//data is updated into the database and the user is redirected back to the settings page.
 function updateUserToDB(){
 
   checkUserNames(userNameField.value);
@@ -419,6 +422,9 @@ function updateUserToDB(){
 
 }
 
+
+//This function is called once the "Add" button is clicked. This function is (in essence) exactly the same as the update
+//function, with the small difference of needing to add a new user to the database and redirect to the login page.
 function addUserToDB(){
 
   checkUserNames(userNameField.value);
@@ -465,6 +471,10 @@ function addUserToDB(){
   }
 }
 
+
+//This function generates a "Share Code" for the new user. This was originally an idea that was meant to take the place
+//of userNames if the user wished to invite someone to see their list, but was eventually scrapped. It is still here in
+//the case that I want to revive the idea for another purpose.
 function genShareCode(){
   var tempShareCode = "";
   for(var i = 1; i < 17; i++){
@@ -476,6 +486,8 @@ function genShareCode(){
   return tempShareCode;
 }
 
+
+//This function is called from the genShareCode() function and returns a random number or letter
 function getRandomAlphabet(){
   var alphabet = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ";
   var selector = Math.floor((Math.random() * alphabet.length));
@@ -483,6 +495,8 @@ function getRandomAlphabet(){
   return charSelect;
 }
 
+
+//This function is called from the add and update functions. It checks to see if the chosen username already exists.
 function checkUserNames(userName){
   for(var i = 0; i < userNameArr.length; i++){
     if(userName == userNameArr[i]){
@@ -491,6 +505,9 @@ function checkUserNames(userName){
   }
 }
 
+
+//This function is called when the "Update" button is clicked. It checks to see if the user object is empty, in which
+//case it updates or adds a new user to the database.
 function updateSuppressCheck(){
   if(user != null){
     updateUserToDB();

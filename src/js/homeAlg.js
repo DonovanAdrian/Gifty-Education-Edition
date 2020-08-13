@@ -367,7 +367,6 @@ window.onload = function instantiate() {
       }
       function resetTimer() {
         if (areYouStillThereBool) {
-          //console.log("User Active");
           ohThereYouAre();
         }
         loginNum = 0;
