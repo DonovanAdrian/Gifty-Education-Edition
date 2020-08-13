@@ -6,7 +6,7 @@
 - [ ] Add Helpful Comments
   - [x] index.html
   - [x] userAddUpdate.html
-  - [ ] home.html 
+  - [x] home.html 
   - [ ] giftAddUpdate.html
   - [ ] lists.html
   - [ ] friendList.html
