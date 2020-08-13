@@ -1,48 +1,57 @@
-var listeningFirebaseRefs = [];
-var giftArr = [];
-var inviteArr = [];
-var userBoughtGifts = [];
-var userBoughtGiftsUsers = [];
+/*
+Welcome to the home page! This page welcomes an authenticated user to their wealth (or lack thereof) of gifts that they
+have put on their "wish list"! The user is able to view each gift's details in a modal and choose to edit, delete, or
+add more gifts on this page as well. There is also a navigation tab at the top of the window that shows the user their
+options for which page they would like to navigate to or sign out.
 
-var invitesValidBool = false;
-var friendsValidBool = false;
-var readNotificationsBool = false;
-var updateUserBool = false;
-var areYouStillThereBool = false;
+As always, all the necessary declarations are below!
+ */
 
-var giftCounter = 0;
-var onlineInt = 0;
-var loadingTimerInt = 0;
-var logoutReminder = 300;
-var logoutLimit = 900;
+var listeningFirebaseRefs = [];         //An array that stores locations in the database that need to be listened to
+var userArr = [];                       //An array that stores all the user data that is fetched from the database
+var giftArr = [];                       //An array that stores all the user's gifts that are fetched from the database
+var inviteArr = [];                     //An array that stores all the user's invites that are fetched from the database
+var userBoughtGifts = [];               //An array that stores the user's bought gifts
+var userBoughtGiftsUsers = [];          //An array that stores the owners of the user's bought gifts
 
-var giftCreationDate;
-var giftList;
-var giftListHTML;
-var offline;
-var giftStorage;
-var privateList;
-var boughtGifts;
-var addBtn;
-var offlineSpan;
-var offlineModal;
-var user;
-var userInvites;
-var offlineTimer;
-var loadingTimer;
-var modal;
-var noteModal;
-var noteInfoField;
-var noteTitleField;
-var noteSpan;
-var listNote;
-var inviteNote;
-var userBase;
-var userGifts;
-var notificationBtn;
+var invitesValidBool = false;           //A boolean used for error checking in a user's invite list
+var friendsValidBool = false;           //A boolean used for error checking in a user's friend list
+var readNotificationsBool = false;      //A boolean used to dictate whether all notifications have been read
+var updateUserBool = false;             //A boolean used to tell whether the user should be updated to DB in error checking
+var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
+
+var giftCounter = 0;                    //An integer used to keep track of the number of gifts loaded on the page
+var onlineInt = 0;                      //An integer used to tell if the authenticated user is online
+var loadingTimerInt = 0;                //An integer used to keep track of how long it takes to load the list of gifts
+var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
+var logoutLimit = 900;                  //The maximum limit to logout the user after being inactive for too long
+
+var giftCreationDate;                   //Stores the "Creation Date" field on a gift's detail window object
+var giftList;                           //Stores the "Gift List" object on the webpage
+var giftListHTML;                       //Stores the inner text of the "Gift List" object on the webpage
+var giftStorage;                        //Stores a gift object in memory to be sent to the "giftAddUpdate" page
+var privateList;                        //Clears the "privateList" object in memory before being sent to "giftAddUpdate"
+var boughtGifts;                        //Stores the "Bought Gifts" object on the webpage
+var addBtn;                             //Stores the "Add Gift" object on the webpage
+var offlineSpan;                        //Stores the "X" object on the "Offline" window
+var offlineModal;                       //Stores the "Offline" window object on the webpage
+var user;                               //Stores an authenticated user's data
+var offlineTimer;                       //Stores the "Offline" timer globally so it can be cancelled from any function
+var loadingTimer;                       //Stores the "Loading" timer globally so it can be cancelled from any function
+var modal;                              //Stores the modal that is used for displaying gift details
+var noteModal;                          //Stores the "Notification" window object on the webpage
+var noteInfoField;                      //Stores the "Info" field on the "Notification" window object
+var noteTitleField;                     //Stores the "Title" field on the "Notification" window object
+var noteSpan;                           //Stores the "X" object on the "Notification" window
+var inviteNote;                         //Stores the "Invite" object on the navigation tab on the webpage
+var userBase;                           //Tells the webpage where to look in the database for data
+var userGifts;                          //Tells the webpage where to look in the database for data
+var userInvites;                        //Tells the webpage where to look in the database for data
+var notificationBtn;                    //Stores the "Notification" object on the webpage
 
 
-
+//This function will load an authenticated user's data from memory and updates various objects on the page based upon
+//the data that the user's object contains.
 function getCurrentUser(){
   try {
     user = JSON.parse(sessionStorage.validUser);
@@ -109,6 +118,9 @@ function getCurrentUser(){
   }
 }
 
+
+//This function checks the user's data for errors. One such error is a user that does not exist anymore is on their
+//friend list. If this is the case, then the user's data will be properly updated in the database.
 function checkUserErrors(){
   var userUIDs = [];
   var inviteEditInt = 0;
@@ -164,6 +176,8 @@ function checkUserErrors(){
   }
 }
 
+
+//If a user's data is shown to contain errors, then it will be updated to the database in this function
 function updateUserToDB(totalErrors, friendEditInt, inviteEditInt){
   if(inviteEditInt > 0) {
     var supplementaryInvitesArr = user.invites;
@@ -182,6 +196,9 @@ function updateUserToDB(totalErrors, friendEditInt, inviteEditInt){
   console.log("Updates pushed!");
 }
 
+
+//This function collects the gifts which a user has bought and are put into the necessary arrays. These arrays will
+//be sent to the boughtGifts page if the "Bought Gifts" button is pressed.
 function collectUserBoughtGifts(){
   var userGiftArr = [];
   var userPrivateGiftArr = [];
@@ -211,6 +228,10 @@ function collectUserBoughtGifts(){
   }
 }
 
+
+//This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
+//from the indexAlg is fetched here to reconnect to the database. Additionally, user errors are checked, bought gifts
+//are collected, the database is queried, and the login timer is started.
 window.onload = function instantiate() {
 
   notificationBtn = document.getElementById('notificationButton');
@@ -224,7 +245,6 @@ window.onload = function instantiate() {
   noteInfoField = document.getElementById('notificationInfo');
   noteSpan = document.getElementById('closeNotification');
   inviteNote = document.getElementById('inviteNote');
-  listNote = document.getElementById('listNote');
   boughtGifts = document.getElementById('boughtGifts');
   addBtn = document.getElementById('addGift');
   modal = document.getElementById('giftModal');
@@ -343,6 +363,9 @@ window.onload = function instantiate() {
 
   loginTimer(); //if action, then reset timer
 
+
+    //This function controls how long the user has been inactive for and reminds them that they have been inactive
+    //after a certain amount of time. If the user is inactive for too long, they will be logged out
   function loginTimer(){
     var loginNum = 0;
     console.log("Login Timer Started");
@@ -374,6 +397,9 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+    //This function closes any open modals and opens the notification modal to tell the user that they have
+    //been inactive for too long.
   function areYouStillThereNote(timeElapsed){
     var timeRemaining = logoutLimit - timeElapsed;
     var timeMins = Math.floor(timeRemaining/60);
@@ -396,6 +422,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function edits the notification modal to welcome the user back after being inactive
   function ohThereYouAre(){
     noteInfoField.innerHTML = "Welcome back, " + user.name;
     noteTitleField.innerHTML = "Oh, There You Are!";
@@ -419,6 +447,10 @@ window.onload = function instantiate() {
     };
   }
 
+
+//This is the function where all the data is accessed and put into arrays. Those arrays are also updated and removed
+//as new data is received. New data is checked through the "listeningFirebaseRefs" array, as this is where database
+//locations are stored and checked on regularly.
   function databaseQuery() {
 
     userBase = firebase.database().ref("users/");
@@ -532,6 +564,9 @@ window.onload = function instantiate() {
     listeningFirebaseRefs.push(userInvites);
   }
 
+
+    //This function is called from the databaseQuery() function and helps find the index of a user's data to properly
+    //update or remove it from the userArr array.
   function findUIDItemInArr(item, userArray){
     for(var i = 0; i < userArray.length; i++){
       if(userArray[i].uid == item){
@@ -542,6 +577,9 @@ window.onload = function instantiate() {
     return -1;
   }
 
+
+  //This function creates each gift's element in the page. Upon clicking on a gift's element, a modal will appear
+  //with the proper gift's details and buttons.
   function createGiftElement(giftDescription, giftLink, giftReceived, giftTitle, giftKey, giftWhere, giftUid, giftDate,
                              giftBuyer){
     try{
@@ -630,6 +668,9 @@ window.onload = function instantiate() {
     giftCounter++;
   }
 
+
+  //This function updates each gift's element in the page. Upon clicking on a gift's element, a modal will appear
+  //with the proper gift's details and buttons.
   function changeGiftElement(description, link, received, title, key, where, uid, date, buyer) {
     var editGift = document.getElementById("gift" + uid);
     editGift.innerHTML = title;
@@ -704,6 +745,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+  //This removes the gift's element from the webpage and deploys an empty gift list notification if necessary.
   function removeGiftElement(uid) {
     document.getElementById("gift" + uid).remove();
 
@@ -713,6 +756,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This redirects the user to the giftAddUpdate page to update a specific gift.
   function updateGiftElement(uid) {
     giftStorage = uid;
     privateList = "";
@@ -723,6 +768,8 @@ window.onload = function instantiate() {
     window.location.href = "giftAddUpdate.html";
   }
 
+
+  //This deletes a specific gift from the user's data in the database and adds a notification if it had a buyer
   function deleteGiftElement(key, title, uid, buyer) {
     var verifyDeleteBool = true;
     var toDelete = -1;
@@ -796,6 +843,9 @@ window.onload = function instantiate() {
     }
   }
 
+
+    //This function is called from the deleteGiftElement() function and helps find the index of a user's User Name to
+    //properly add a notification to the database
   function findUserNameItemInArr(item, userArray){
     for(var i = 0; i < userArray.length; i++){
       if(userArray[i].userName == item){
@@ -806,6 +856,8 @@ window.onload = function instantiate() {
     return -1;
   }
 
+
+  //This function adds a notification to the database
   function addNotificationToDB(buyerUserData, giftTitle){
     var pageName = "deleteGift";
     var giftOwner = user.uid;
@@ -829,12 +881,16 @@ window.onload = function instantiate() {
     console.log("Added Notification To DB");
   }
 
+
+  //This function helps generate the notification data for each notification
   function generateNotificationString(giftOwner, giftTitle, pageName){
     console.log("Generating Notification");
     return (giftOwner + "," + giftTitle + "," + pageName);
   }
 };
 
+
+//This function deploys a notification that shows that the user's gift list is empty
 function deployGiftListEmptyNotification(){
   try{
     document.getElementById("TestGift").innerHTML = "No Gifts Found! Add Some Gifts With The Button Below!";
@@ -851,11 +907,15 @@ function deployGiftListEmptyNotification(){
   clearInterval(offlineTimer);
 }
 
+
+//This function signs out the user and clears their data from memory
 function signOut(){
   sessionStorage.clear();
   window.location.href = "index.html";
 }
 
+
+//This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
   sessionStorage.setItem("validUser", JSON.stringify(user));
   sessionStorage.setItem("userArr", JSON.stringify(userArr));
