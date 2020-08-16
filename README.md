@@ -8,7 +8,7 @@
   - [x] userAddUpdate.html
   - [x] home.html 
   - [x] giftAddUpdate.html
-  - [ ] lists.html
+  - [x] lists.html
   - [ ] friendList.html
   - [ ] invites.html
   - [ ] confirmation.html
