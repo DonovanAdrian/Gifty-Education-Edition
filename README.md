@@ -7,7 +7,7 @@
   - [x] index.html
   - [x] userAddUpdate.html
   - [x] home.html 
-  - [ ] giftAddUpdate.html
+  - [x] giftAddUpdate.html
   - [ ] lists.html
   - [ ] friendList.html
   - [ ] invites.html

@@ -1,35 +1,44 @@
-var listeningFirebaseRefs = [];
-var giftArr = [];
+/*
+Welcome to the giftAddUpdate page! This is the page where you can add or change a given gift's details. Much like the
+userAddUpdate page, this page offers multiple functions for the user to help keep things a little more efficient. Like
+most of the other pages, there is a navigation tab at the top of the page in case the user changes their mind and wants
+to go to another page instead or sign out.
 
-var giftPresent = true;
-var privateListBool = true;
-var areYouStillThereBool = false;
+Like usual, all the necessary declarations are below!
+ */
 
-var giftUID = -1;
-var logoutReminder = 300;
-var logoutLimit = 900;
+var listeningFirebaseRefs = [];         //An array that stores locations in the database that need to be listened to
+var giftArr = [];                       //An array that stores all the user's gifts that are fetched from the database
 
-var offline;
-var giftList;
-var giftStorage;
-var privateList;
-var offlineSpan;
-var offlineModal;
-var user;
-var privateUser;
-var descField;
-var titleField;
-var whereField;
-var linkField;
-var spanUpdate;
-var currentGift;
-var userGifts;
-var noteModal;
-var noteInfoField;
-var noteTitleField;
-var noteSpan;
+var giftPresent = true;                 //A global boolean used to change the add/update button's text
+var privateListBool = true;             //A global boolean used to tell whether this gift is a private gift or not
+var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
+
+var giftUID = -1;                       //An integer that stands for the index of the current gift
+var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
+var logoutLimit = 900;                  //The maximum limit to logout the user after being inactive for too long
+
+var giftStorage;                        //Stores a gift object in memory to be sent to the "giftAddUpdate" page
+var privateList;                        //If someone reaches this page from a private list, they can edit the private gift
+var offlineSpan;                        //Stores the "X" object on the "Offline" window
+var offlineModal;                       //Stores the "Offline" window object on the webpage
+var user;                               //Stores an authenticated user's data
+var privateUser;                        //If someone reaches this page from a private list, we can keep track of that user
+var descField;                          //Stores the "Description" input field on the webpage
+var titleField;                         //Stores the "Title" input field on the webpage
+var whereField;                         //Stores the "Where" input field on the webpage
+var linkField;                          //Stores the "Link" input field on the webpage
+var spanUpdate;                         //Stores the "Update"/"Add" object on the webpage
+var currentGift;                        //Stores the current gift's data in memory
+var userGifts;                          //Stores the current user's gifts in memory
+var noteModal;                          //Stores the "Notification" window object on the webpage
+var noteInfoField;                      //Stores the "Info" field on the "Notification" window object
+var noteTitleField;                     //Stores the "Title" field on the "Notification" window object
+var noteSpan;                           //Stores the "X" object on the "Notification" window
 
 
+//This function will load an authenticated user's data from memory and updates various objects on the page based upon
+//the data that the user's object contains.
 function getCurrentUser(){
   try {
     user = JSON.parse(sessionStorage.validUser);
@@ -64,10 +73,11 @@ function getCurrentUser(){
   }
 }
 
-//Instantiates all data upon loading the webpage
+//This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
+//from the indexAlg is fetched here to reconnect to the database. Additionally, the Update/Add button's text and
+//function are changed, the database is queried, and the login timer is started.
 window.onload = function instantiate() {
 
-  giftList = document.getElementById("giftListContainer");
   offlineModal = document.getElementById('offlineModal');
   offlineSpan = document.getElementById("closeOffline");
   descField = document.getElementById('giftDescriptionInp');
@@ -147,6 +157,9 @@ window.onload = function instantiate() {
 
   loginTimer(); //if action, then reset timer
 
+
+    //This function controls how long the user has been inactive for and reminds them that they have been inactive
+    //after a certain amount of time. If the user is inactive for too long, they will be logged out
   function loginTimer(){
     var loginNum = 0;
     console.log("Login Timer Started");
@@ -179,6 +192,9 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+    //This function closes any open modals and opens the notification modal to tell the user that they have
+    //been inactive for too long.
   function areYouStillThereNote(timeElapsed){
     var timeRemaining = logoutLimit - timeElapsed;
     var timeMins = Math.floor(timeRemaining/60);
@@ -201,6 +217,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function edits the notification modal to welcome the user back after being inactive
   function ohThereYouAre(){
     noteInfoField.innerHTML = "Welcome back, " + user.name;
     noteTitleField.innerHTML = "Oh, There You Are!";
@@ -224,6 +242,10 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This is the function where all the data is accessed and put into arrays. Those arrays are also updated and removed
+    //as new data is received. New data is checked through the "listeningFirebaseRefs" array, as this is where database
+    //locations are stored and checked on regularly.
   function databaseQuery() {
 
     if(!privateListBool) {
@@ -272,6 +294,8 @@ window.onload = function instantiate() {
     listeningFirebaseRefs.push(userGifts);
   }
 
+
+  //This is where the gift's data is initialized in the respective fields on the webpage
   function initializeData() {
     if(giftPresent) {
       getGift();
@@ -292,6 +316,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This is where the current gift's data is fetched from the user's gift list or private list
   function getGift() {
     if(!privateListBool) {
       for (var i = 0; i < user.giftList.length; i++) {
@@ -310,6 +336,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function updates the gift to the database, whether they are in a private list or not
   function updateGiftToDB(){
     if(titleField.value === "")
       alert("It looks like you left the title blank. Make sure you add a title so other people know what to get " +
@@ -395,6 +423,9 @@ window.onload = function instantiate() {
     }
   }
 
+
+    //This function is called from the deleteGiftElement() function and helps find the index of a user's User Name to
+    //properly add a notification to the database
   function findUserNameItemInArr(item, userArray){
     for(var i = 0; i < userArray.length; i++){
       if(userArray[i].userName == item){
@@ -405,6 +436,8 @@ window.onload = function instantiate() {
     return -1;
   }
 
+
+    //This function adds a notification to the database
   function addNotificationToDB(buyerUserData, giftTitle){
     var pageName = "friendList.html";
     var giftOwner = user.uid;
@@ -433,11 +466,15 @@ window.onload = function instantiate() {
     }
   }
 
+
+    //This function helps generate the notification data for each notification
   function generateNotificationString(giftOwner, giftTitle, pageName){
     console.log("Generating Notification");
     return (giftOwner + "," + giftTitle + "," + pageName);
   }
 
+
+  //This function adds the gift to a public or a private list in the database
   function addGiftToDB(){
     var uid = giftArr.length;
     var today = new Date();
@@ -493,11 +530,15 @@ window.onload = function instantiate() {
   }
 };
 
+
+//This function signs out the user and clears their data from memory
 function signOut(){
   sessionStorage.clear();
   window.location.href = "index.html";
 }
 
+
+//This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
   if (!privateListBool)
     sessionStorage.setItem("validUser", JSON.stringify(user));
