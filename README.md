@@ -9,7 +9,7 @@
   - [x] home.html 
   - [x] giftAddUpdate.html
   - [x] lists.html
-  - [ ] friendList.html
+  - [x] friendList.html
   - [ ] invites.html
   - [ ] confirmation.html
   - [ ] settings.html 
@@ -17,6 +17,7 @@
   - [ ] moderation.html
   - [ ] passOp.js
 - [ ] Keep Gifty:EE updated with Gifty
+- [ ] Create a Data Flow Diagram for each page
 
 
 ## Website Structure
@@ -45,15 +46,14 @@ any additional questions, send me an email at my support
 email!
 
 
-## How Well Does This Work?
-While the original Gifty is far from perfect, I have been 
-able to bring it up to full functionality over the past 
-couple months! Some of the updates from the old version 
-include more efficient data usage, faster page loading, 
-data error correction, and more reliable database 
-interactions. If you are interested in looking at the full 
-project that does *not* comments, take a look at my 
-repositories!
+## Who Is This "Education Edition" For?
+Good question! As I look through many of the pages that I 
+have already added my "helpful comments" to, I have to note 
+that many of my comments require having the knowledge and 
+skills to see what I'm doing with all of the data that I 
+have organized. Perhaps at some point I will draw up a more 
+serious diagram of how data flows through the system in light
+of this.
 
 
 ## Do You Have Any Other Plans For This Program?
