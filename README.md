@@ -10,7 +10,7 @@
   - [x] giftAddUpdate.html
   - [x] lists.html
   - [x] friendList.html
-  - [ ] invites.html
+  - [x] invites.html
   - [ ] confirmation.html
   - [ ] settings.html 
   - [ ] faq.html
