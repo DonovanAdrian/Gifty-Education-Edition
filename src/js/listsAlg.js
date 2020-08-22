@@ -1,8 +1,9 @@
 /*
-Welcome to the lists page! This page welcomes an authenticated user to their wealth (or lack thereof) of friends that
-are on their friend list. If you click on a friend, you will be told how many gifts are on each list (public or private)
-and you can click on a text field to access each respective list. Like most of the other pages, there is a navigation
-tab at the top of the page in case the user changes their mind and wants to go to another page instead or sign out.
+Welcome to the lists page! This page (just like the invites page) welcomes an authenticated user to their wealth
+(or lack thereof) of friends that are on their friend list. If you click on a friend, you will be told how many gifts
+are on each list (public or private) and you can click on a text field to access each respective list. Like most of
+the other pages, there is a navigation tab at the top of the page in case the user changes their mind and wants to go
+to another page instead or sign out.
 
 Below are the usual object and data declarations!
  */

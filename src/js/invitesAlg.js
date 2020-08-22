@@ -1,43 +1,53 @@
-var inviteArr = [];
-var friendArr = [];
-var listeningFirebaseRefs = [];
+/*
+Welcome to the invites page! This page (just like the lists page) welcomes an authenticated user to their wealth (or
+lack thereof) of friends that are on their friend list. If you click on one of these friends, you will be shown their
+user name and share code. You also have the option of removing the user from the friend list on this page. Like most of
+the other pages, there is a navigation tab at the top of the page in case the user changes their mind and wants to go
+to another page instead or sign out.
 
-var areYouStillThereBool = false;
-var readNotificationsBool = false;
-var invitesFound = false;
+As always, below are the usual object and data declarations!
+ */
 
-var friendCount = 0;
-var loadingTimerInt = 0;
-var logoutReminder = 300;
-var logoutLimit = 900;
+var inviteArr = [];                     //An array that stores all the user's invites that are fetched from the database
+var friendArr = [];                     //An array that stores the user's friends that are fetched from the database
+var listeningFirebaseRefs = [];         //An array that stores locations in the database that need to be listened to
+var userArr = [];                       //An array that stores all the user data that is fetched from the database
 
-var offline;
-var userList;
-var userListHTML;
-var offlineSpan;
-var offlineModal;
-var userInviteModal;
-var confirmUserModal;
-var addUserBtn;
-var user;
-var newInvite;
-var listNote;
-var inviteNote;
-var userInput;
-var offlineTimer;
-var loadingTimer;
-var userInitial;
-var userFriends;
-var userInvites;
-var addGlobalMsgModal;
-var noteModal;
-var noteInfoField;
-var noteTitleField;
-var noteSpan;
-var notificationBtn;
-var modal;
+var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
+var readNotificationsBool = false;      //A boolean used to dictate whether all notifications have been read
+var invitesFound = false;               //A boolean used to assist the deployment of an empty friend list notification
+
+var friendCount = 0;                    //An integer used to keep track of the number of friends loaded on the page
+var loadingTimerInt = 0;                //An integer used to keep track of how long it takes to load the list of gifts
+var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
+var logoutLimit = 900;                  //The maximum limit to logout the user after being inactive for too long
+
+var userList;                           //Stores the "User List" object on the webpage
+var offlineSpan;                        //Stores the "X" object on the "Offline" window
+var offlineModal;                       //Stores the "Offline" window object on the webpage
+var userInviteModal;                    //Stores the "Invite" window object on the webpage
+var confirmUserModal;                   //Stores the "Confirm" window object on the webpage
+var addUserBtn;                         //Stores the "Add User" object on the webpage
+var user;                               //Stores an authenticated user's data
+var newInvite;                          //Stores the "New Invite" object on the webpage
+var inviteNote;                         //Stores the "Invite" object on the navigation tab on the webpage
+var userInput;                          //Stores the User Input on the "Invite" window object
+var offlineTimer;                       //Stores the "Offline" timer globally so it can be cancelled from any function
+var loadingTimer;                       //Stores the "Loading" timer globally so it can be cancelled from any function
+var userInitial;                        //Tells the webpage where to look in the database for data
+var userFriends;                        //Tells the webpage where to look in the database for data
+var userInvites;                        //Tells the webpage where to look in the database for data
+var addGlobalMsgModal;                  //Stores the "Private Message" modal for sending users messages
+var noteModal;                          //Stores the "Notification" window object on the webpage
+var noteInfoField;                      //Stores the "Info" field on the "Notification" window object
+var noteTitleField;                     //Stores the "Title" field on the "Notification" window object
+var noteSpan;                           //Stores the "X" object on the "Notification" window
+var notificationBtn;                    //Stores the "Notification" object on the webpage
+var modal;                              //Stores the modal that is used for displaying user details
 
 
+//This function will load an authenticated user's data from memory and updates various objects on the page based upon
+//the data that the user's object contains.
 function getCurrentUser(){
   try {
     user = JSON.parse(sessionStorage.validUser);
@@ -100,16 +110,18 @@ function getCurrentUser(){
   }
 }
 
+
+//This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
+//from the indexAlg is fetched here to reconnect to the database. Additionally, the "Add User" button is instantiated,
+//the database is queried, and the login timer is started.
 window.onload = function instantiate() {
 
   notificationBtn = document.getElementById('notificationButton');
   userList = document.getElementById("userListContainer");
-  userListHTML = document.getElementById("userListContainer").innerHTML;
   offlineModal = document.getElementById('offlineModal');
   offlineSpan = document.getElementById("closeOffline");
   userInviteModal = document.getElementById('userInviteModal');
   confirmUserModal = document.getElementById('confirmModal');
-  listNote = document.getElementById('listNote');
   inviteNote = document.getElementById('inviteNote');
   newInvite = document.getElementById('newInviteIcon');
   addUserBtn = document.getElementById('addUser');
@@ -216,6 +228,9 @@ window.onload = function instantiate() {
 
   loginTimer(); //if action, then reset timer
 
+
+    //This function controls how long the user has been inactive for and reminds them that they have been inactive
+    //after a certain amount of time. If the user is inactive for too long, they will be logged out
   function loginTimer(){
     var loginNum = 0;
     console.log("Login Timer Started");
@@ -248,6 +263,9 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+    //This function closes any open modals and opens the notification modal to tell the user that they have
+    //been inactive for too long.
   function areYouStillThereNote(timeElapsed){
     var timeRemaining = logoutLimit - timeElapsed;
     var timeMins = Math.floor(timeRemaining/60);
@@ -270,6 +288,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function edits the notification modal to welcome the user back after being inactive
   function ohThereYouAre(){
     noteInfoField.innerHTML = "Welcome back, " + user.name;
     noteTitleField.innerHTML = "Oh, There You Are!";
@@ -293,6 +313,10 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This is the function where all the data is accessed and put into arrays. Those arrays are also updated and removed
+    //as new data is received. New data is checked through the "listeningFirebaseRefs" array, as this is where database
+    //locations are stored and checked on regularly.
   function databaseQuery() {
 
     userInitial = firebase.database().ref("users/");
@@ -385,6 +409,9 @@ window.onload = function instantiate() {
     listeningFirebaseRefs.push(userInvites);
   }
 
+
+    //This function is called from the databaseQuery() function and helps find the index of a user's data to properly
+    //update or remove it from the userArr array.
   function findUIDItemInArr(item, userArray){
     for(var i = 0; i < userArray.length; i++){
       if(userArray[i].uid == item){
@@ -395,6 +422,9 @@ window.onload = function instantiate() {
     return -1;
   }
 
+
+    //This function creates each friend element that appears on the page. Once a friend's element is clicked, their
+    //respective user names/share codes will appear, as well as a couple helpful buttons/interactive text fields.
   function createFriendElement(friendKey){
     var friendData;
     for (var i = 0; i < userArr.length; i++){
@@ -465,6 +495,9 @@ window.onload = function instantiate() {
     }
   }
 
+
+    //This function updates each friend element that appears on the page. Once a friend's element is clicked, their
+    //respective user names/share codes will appear, as well as a couple helpful buttons/interactive text fields.
   function changeFriendElement(friendKey){
     var friendData;
     for (var i = 0; i < userArr.length; i++){
@@ -525,6 +558,9 @@ window.onload = function instantiate() {
     }
   }
 
+
+    //This function will open the private message modal with an input field and Send/Cancel buttons. After the user types
+    //in the message and clicks "Send", the message will be added to the appropriate user's notifications in the database.
   function generatePrivateMessageDialog(userData) {
     var sendNote = document.getElementById('sendNote');
     var cancelNote = document.getElementById('cancelNote');
@@ -562,10 +598,15 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function generates the necessary private message string in order to be identified as a private message on the
+    //notifications page.
   function generatePrivateMessage(userUID, message){
     return userUID + "@#$:" + message;
   }
 
+
+    //This function adds the private message to the database.
   function addPrivateMessageToDB(userData, message) {
     var userNotificationArr = [];
     if(userData.notifications == undefined){
@@ -584,6 +625,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function deletes the friend from the user's data and updates the database with the updated list.
   function deleteFriend(uid) {
     //Delete on user's side
     var userFriendArrBackup = friendArr;
@@ -678,6 +721,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function generates the "Add User" button on the webpage as well as its functionality.
   function generateAddUserBtn(){
     var friendUserNameList = [];
     var upperCaseUserArr = [];
@@ -774,6 +819,8 @@ window.onload = function instantiate() {
     console.log("Add Button Generated");
   }
 
+
+  //This function generates the confirm dialog to confirm a user's invitation to view their list
   function generateConfirmDialog(userLocation) {
     var confirmSpan = document.getElementsByClassName("close")[2];
     var inviteConfirm = document.getElementById('inviteConfirm');
@@ -823,6 +870,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function removes the friend's element from the webpage.
   function removeFriendElement(uid) {
     document.getElementById("user" + uid).remove();
 
@@ -832,6 +881,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function invites a valid user to view the current user's friend list.
   function inviteUserDB(invitedUser) {
     var invitedUserInvites;
     if(invitedUser.invites == undefined || invitedUser.invites == null){
@@ -869,11 +920,15 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function generates the notification string for an invite
   function generateNotificationString(invitedName, pageName){
     return (invitedName + "," + pageName);
   }
 };
 
+
+//This function deploys a notification that the user's friend list is empty
 function deployFriendListEmptyNotification(){
   try{
     if (invitesFound) {
@@ -898,11 +953,15 @@ function deployFriendListEmptyNotification(){
   clearInterval(offlineTimer);
 }
 
+
+//This function signs out the user and clears their data from memory
 function signOut(){
   sessionStorage.clear();
   window.location.href = "index.html";
 }
 
+
+//This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
   sessionStorage.setItem("validUser", JSON.stringify(user));
   sessionStorage.setItem("userArr", JSON.stringify(userArr));
