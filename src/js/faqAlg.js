@@ -1,25 +1,33 @@
-var userArr = [];
-var supportArr = [];
+/*
+Welcome to the faq page! This is where authenticated users can read up on some important frequently asked questions or
+send the support team (me) an email.
 
-var areYouStillThereBool = false;
+Although the following object declarations are much shorter than usual, here they are!
+ */
 
-var logoutReminder = 300;
-var logoutLimit = 900;
+var userArr = [];                       //An array that stores all the user data that is fetched from the database
+var supportArr = [];                    //An array that stores the current user's support submissions
 
-var offline;
-var giftList;
-var offlineSpan;
-var offlineModal;
-var emailBtn;
-var user;
-var inviteNote;
-var noteModal;
-var noteInfoField;
-var noteTitleField;
-var noteSpan;
-var modal;
+var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
+
+var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
+var logoutLimit = 900;                  //The maximum limit to logout the user after being inactive for too long
+
+var offlineSpan;                        //Stores the "X" object on the "Offline" window
+var offlineModal;                       //Stores the "Offline" window object on the webpage
+var emailBtn;                           //Stores the "Email Me" object on the webpage
+var user;                               //Stores an authenticated user's data
+var settingsNote;                       //Stores the "Settings" object on the navigation tab on the webpage
+var inviteNote;                         //Stores the "Invite" object on the navigation tab on the webpage
+var noteModal;                          //Stores the "Notification" window object on the webpage
+var noteInfoField;                      //Stores the "Info" field on the "Notification" window object
+var noteTitleField;                     //Stores the "Title" field on the "Notification" window object
+var noteSpan;                           //Stores the "X" object on the "Notification" window
+var modal;                              //Stores the modal that is used for displaying gift details
 
 
+//This function will load an authenticated user's data from memory and updates various objects on the page based upon
+//the data that the user's object contains.
 function getCurrentUser(){
   try {
     user = JSON.parse(sessionStorage.validUser);
@@ -38,12 +46,17 @@ function getCurrentUser(){
   }
 }
 
+
+//This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
+//from the indexAlg is fetched here to reconnect to the database. Additionally, the settingsNote object is "activated"
+//and the login timer is started.
 window.onload = function instantiate() {
 
   emailBtn = document.getElementById('emailBtn');
   offlineModal = document.getElementById('offlineModal');
   offlineSpan = document.getElementById("closeOffline");
   inviteNote = document.getElementById('inviteNote');
+  settingsNote = document.getElementById('settingsNote');
   noteModal = document.getElementById('notificationModal');
   noteTitleField = document.getElementById('notificationTitle');
   noteInfoField = document.getElementById('notificationInfo');
@@ -106,6 +119,8 @@ window.onload = function instantiate() {
       '&body=Hey Gifty Support, %0D%0A%0D%0A%0D%0A%0D%0A Sincerely, ' + user.userName);
   };
 
+
+  //This function generates a support key and sends it to the addSupportToDB function to add it to the database.
   function genSupport() {
     var supportCode = "";
     for(var i = 0; i < 16; i++){
@@ -115,6 +130,8 @@ window.onload = function instantiate() {
     return supportCode;
   }
 
+
+  //This function adds the prior support code to the database for the support team's reference.
   function addSupportToDB(supportCode) {
     var supportCount = 0;
     try{
@@ -131,6 +148,8 @@ window.onload = function instantiate() {
     });
   }
 
+
+  //This function randomly returns an alphanumeric character.
   function randomizer() {
     var alphabet = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ";
     var selector = Math.floor((Math.random() * alphabet.length));
@@ -142,6 +161,9 @@ window.onload = function instantiate() {
 
   loginTimer(); //if action, then reset timer
 
+
+    //This function controls how long the user has been inactive for and reminds them that they have been inactive
+    //after a certain amount of time. If the user is inactive for too long, they will be logged out
   function loginTimer(){
     var loginNum = 0;
     console.log("Login Timer Started");
@@ -174,6 +196,9 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+    //This function closes any open modals and opens the notification modal to tell the user that they have
+    //been inactive for too long.
   function areYouStillThereNote(timeElapsed){
     var timeRemaining = logoutLimit - timeElapsed;
     var timeMins = Math.floor(timeRemaining/60);
@@ -196,6 +221,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function edits the notification modal to welcome the user back after being inactive
   function ohThereYouAre(){
     noteInfoField.innerHTML = "Welcome back, " + user.name;
     noteTitleField.innerHTML = "Oh, There You Are!";
@@ -219,6 +246,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+  //This function activates a "toggle" on the settings button to notify the user that they are on the FAQ page.
   function settingsFAQButton(){
     var nowConfirm = 0;
     var alternator = 0;
@@ -241,11 +270,15 @@ window.onload = function instantiate() {
   }
 };
 
+
+//This function signs out the user and clears their data from memory
 function signOut(){
   sessionStorage.clear();
   window.location.href = "index.html";
 }
 
+
+//This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
   sessionStorage.setItem("validUser", JSON.stringify(user));
   sessionStorage.setItem("userArr", JSON.stringify(userArr));

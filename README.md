@@ -12,8 +12,8 @@
   - [x] friendList.html
   - [x] invites.html
   - [x] confirmation.html
-  - [ ] settings.html 
-  - [ ] faq.html
+  - [x] settings.html 
+  - [x] faq.html
   - [ ] moderation.html
   - [ ] passOp.js
 - [ ] Keep Gifty:EE updated with Gifty

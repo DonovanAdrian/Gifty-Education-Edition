@@ -1,24 +1,36 @@
-var userArr = [];
+/*
+Welcome to the settings page! This page gives the user access to their user account settings as well as a FAQ/Help page.
+This page is the only that do not use any database operations. Instead, all that's needed is to make sure that the
+current user's data is fetched from memory to move along to other pages. Additionally, this is where moderators can
+access the moderation page.
 
-var areYouStillThereBool = false;
+Albeit significantly shorter than usual, the proper object declarations are as follows!
+ */
 
-var logoutReminder = 300;
-var logoutLimit = 900;
+var userArr = [];                       //An array that stores all the user data that is fetched from the database
 
-var editBtn;
-var faqBtn;
-var modBtn;
-var offlineTimer;
-var offlineSpan;
-var offlineModal;
-var inviteNote;
-var user;
-var noteModal;
-var noteInfoField;
-var noteTitleField;
-var noteSpan;
-var modal;
+var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
 
+var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
+var logoutLimit = 900;                  //The maximum limit to logout the user after being inactive for too long
+
+var editBtn;                            //Stores the "Edit User" object on the webpage
+var faqBtn;                             //Stores the "FAQ/Help" object on the webpage
+var modBtn;                             //Stores the "Moderation" object on the webpage
+var offlineTimer;                       //Stores the "Offline" timer globally so it can be cancelled from any function
+var offlineSpan;                        //Stores the "X" object on the "Offline" window
+var offlineModal;                       //Stores the "Offline" window object on the webpage
+var inviteNote;                         //Stores the "Invite" object on the navigation tab on the webpage
+var user;                               //Stores an authenticated user's data
+var noteModal;                          //Stores the "Notification" window object on the webpage
+var noteInfoField;                      //Stores the "Info" field on the "Notification" window object
+var noteTitleField;                     //Stores the "Title" field on the "Notification" window object
+var noteSpan;                           //Stores the "X" object on the "Notification" window
+var modal;                              //Stores the modal that is used for displaying gift details
+
+
+//This function will load an authenticated user's data from memory and updates various objects on the page based upon
+//the data that the user's object contains.
 function getCurrentUser(){
   try {
     user = JSON.parse(sessionStorage.validUser);
@@ -43,6 +55,10 @@ function getCurrentUser(){
   }
 }
 
+
+//This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
+//from the indexAlg is fetched here to reconnect to the database. Additionally, the edit button and FAQ button are
+//initialized and the loading timer is started.
 window.onload = function instantiate() {
 
   offlineModal = document.getElementById('offlineModal');
@@ -117,6 +133,9 @@ window.onload = function instantiate() {
 
   loginTimer(); //if action, then reset timer
 
+
+    //This function controls how long the user has been inactive for and reminds them that they have been inactive
+    //after a certain amount of time. If the user is inactive for too long, they will be logged out
   function loginTimer(){
     var loginNum = 0;
     console.log("Login Timer Started");
@@ -149,6 +168,9 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+    //This function closes any open modals and opens the notification modal to tell the user that they have
+    //been inactive for too long.
   function areYouStillThereNote(timeElapsed){
     var timeRemaining = logoutLimit - timeElapsed;
     var timeMins = Math.floor(timeRemaining/60);
@@ -171,6 +193,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function edits the notification modal to welcome the user back after being inactive
   function ohThereYouAre(){
     noteInfoField.innerHTML = "Welcome back, " + user.name;
     noteTitleField.innerHTML = "Oh, There You Are!";
@@ -195,11 +219,15 @@ window.onload = function instantiate() {
   }
 };
 
+
+//This function signs out the user and clears their data from memory
 function signOut(){
   sessionStorage.clear();
   window.location.href = "index.html";
 }
 
+
+//This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
   sessionStorage.setItem("validUser", JSON.stringify(user));
   sessionStorage.setItem("userArr", JSON.stringify(userArr));
