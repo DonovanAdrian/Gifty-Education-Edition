@@ -11,7 +11,7 @@
   - [x] lists.html
   - [x] friendList.html
   - [x] invites.html
-  - [ ] confirmation.html
+  - [x] confirmation.html
   - [ ] settings.html 
   - [ ] faq.html
   - [ ] moderation.html

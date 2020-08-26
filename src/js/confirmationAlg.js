@@ -1,37 +1,46 @@
-var userArr = [];
-var friendArr = [];
-var inviteArr = [];
-var listeningFirebaseRefs = [];
+/*
+Welcome to the confirmation page! This page welcomes an authenticated user to their list of pending invites. Upon
+selecting a pending invite, you are greeted with their user name, share code, and the option to accept or delete the
+pending invite. There is also a navigation tab at the top of the window that shows the user their options for which
+page they would like to navigate to or sign out.
 
-var areYouStillThereBool = false;
-var readNotificationsBool = false;
+As per usual, the typical object declarations are below!
+ */
 
-var inviteCount = 0;
-var onlineInt = 0;
-var loadingTimerInt = 0;
-var logoutReminder = 300;
-var logoutLimit = 900;
+var userArr = [];                       //An array that stores all the user data that is fetched from the database
+var friendArr = [];                     //An array that stores all the user's friends that are fetched from the database
+var inviteArr = [];                     //An array that stores all the user's invites that are fetched from the database
+var listeningFirebaseRefs = [];         //An array that stores locations in the database that need to be listened to
 
-var offline;
-var userList;
-var userListHTML;
-var offlineSpan;
-var offlineModal;
-var user;
-var userInitial;
-var userInvites;
-var userFriends;
-var modal;
-var listNote;
-var inviteNote;
-var loadingTimer;
-var offlineTimer;
-var noteModal;
-var noteInfoField;
-var noteTitleField;
-var noteSpan;
-var notificationBtn;
+var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
+var readNotificationsBool = false;      //A boolean used to dictate whether all notifications have been read
 
+var inviteCount = 0;                    //An integer used to keep track of the number of invites loaded on the page
+var onlineInt = 0;                      //An integer used to tell if the authenticated user is online
+var loadingTimerInt = 0;                //An integer used to keep track of how long it takes to load the list of gifts
+var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
+var logoutLimit = 900;                  //The maximum limit to logout the user after being inactive for too long
+
+var userList;                           //Stores the "User List" object on the webpage
+var offlineSpan;                        //Stores the "X" object on the "Offline" window
+var offlineModal;                       //Stores the "Offline" window object on the webpage
+var user;                               //Stores an authenticated user's data
+var userInitial;                        //Tells the webpage where to look in the database for data
+var userInvites;                        //Tells the webpage where to look in the database for data
+var userFriends;                        //Tells the webpage where to look in the database for data
+var modal;                              //Stores the modal that is used for displaying gift details
+var inviteNote;                         //Stores the "Invite" object on the navigation tab on the webpage
+var offlineTimer;                       //Stores the "Offline" timer globally so it can be cancelled from any function
+var loadingTimer;                       //Stores the "Loading" timer globally so it can be cancelled from any function
+var noteModal;                          //Stores the "Notification" window object on the webpage
+var noteInfoField;                      //Stores the "Info" field on the "Notification" window object
+var noteTitleField;                     //Stores the "Title" field on the "Notification" window object
+var noteSpan;                           //Stores the "X" object on the "Notification" window
+var notificationBtn;                    //Stores the "Notification" object on the webpage
+
+
+//This function will load an authenticated user's data from memory and updates various objects on the page based upon
+//the data that the user's object contains.
 function getCurrentUser(){
   try {
     user = JSON.parse(sessionStorage.validUser);
@@ -86,14 +95,16 @@ function getCurrentUser(){
   }
 }
 
+
+//This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
+//from the indexAlg is fetched here to reconnect to the database. Additionally, the database is queried, the inviteNote
+//object is "activated" and the login timer is started.
 window.onload = function instantiate() {
 
   notificationBtn = document.getElementById('notificationButton');
   userList = document.getElementById("userListContainer");
-  userListHTML = document.getElementById("userListContainer").innerHTML;
   offlineModal = document.getElementById('offlineModal');
   offlineSpan = document.getElementById("closeOffline");
-  listNote = document.getElementById('listNote');
   inviteNote = document.getElementById('inviteNote');
   noteModal = document.getElementById('notificationModal');
   noteTitleField = document.getElementById('notificationTitle');
@@ -121,7 +132,6 @@ window.onload = function instantiate() {
       // User is signed out.
     }
   });
-
 
   window.addEventListener("online", function(){
     offlineModal.style.display = "none";
@@ -191,6 +201,9 @@ window.onload = function instantiate() {
 
   loginTimer(); //if action, then reset timer
 
+
+    //This function controls how long the user has been inactive for and reminds them that they have been inactive
+    //after a certain amount of time. If the user is inactive for too long, they will be logged out
   function loginTimer(){
     var loginNum = 0;
     console.log("Login Timer Started");
@@ -223,6 +236,9 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+    //This function closes any open modals and opens the notification modal to tell the user that they have
+    //been inactive for too long.
   function areYouStillThereNote(timeElapsed){
     var timeRemaining = logoutLimit - timeElapsed;
     var timeMins = Math.floor(timeRemaining/60);
@@ -245,6 +261,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function edits the notification modal to welcome the user back after being inactive
   function ohThereYouAre(){
     noteInfoField.innerHTML = "Welcome back, " + user.name;
     noteTitleField.innerHTML = "Oh, There You Are!";
@@ -268,6 +286,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+  //This function activates a "toggle" on the invites button to notify the user that they are confirming their invites
   function inviteConfirmButton(){
     var nowConfirm = 0;
     var alternator = 0;
@@ -289,6 +309,10 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+    //This is the function where all the data is accessed and put into arrays. Those arrays are also updated and removed
+    //as new data is received. New data is checked through the "listeningFirebaseRefs" array, as this is where database
+    //locations are stored and checked on regularly.
   function databaseQuery() {
 
     userInitial = firebase.database().ref("users/");
@@ -381,6 +405,9 @@ window.onload = function instantiate() {
     listeningFirebaseRefs.push(userInvites);
   }
 
+
+    //This function is called from the databaseQuery() function and helps find the index of a user's data to properly
+    //update or remove it from the userArr array.
   function findUIDItemInArr(item, userArray){
     for(var i = 0; i < userArray.length; i++){
       if(userArray[i].uid == item){
@@ -391,6 +418,9 @@ window.onload = function instantiate() {
     return -1;
   }
 
+
+    //This function creates each invite's element in the page. Upon clicking on an invite's element, a modal will appear
+    //with the proper invite's details and buttons.
   function createInviteElement(inviteKey){
     try{
       document.getElementById("TestGift").remove();
@@ -460,6 +490,9 @@ window.onload = function instantiate() {
     inviteCount++;
   }
 
+
+    //This function updates each invite's element in the page. Upon clicking on an invite's element, a modal will appear
+    //with the proper invite's details and buttons.
   function changeInviteElement(inviteKey){
     var inviteData;
     for (var i = 0; i < userArr.length; i++){
@@ -519,6 +552,9 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function adds the current user's uid to the new friend's friend list and vis versa, after which it updates
+    //both data sets to the database.
   function addInvite(inviteData){
     console.log("Adding " + inviteData.uid);
     console.log(friendArr);
@@ -554,6 +590,8 @@ window.onload = function instantiate() {
     deleteInvite(inviteData.uid);
   }
 
+
+  //This function removes the invite from the current user's invite list and then updates the invite list to the database.
   function deleteInvite(uid) {
     var verifyDeleteBool = true;
     var toDelete = -1;
@@ -588,6 +626,8 @@ window.onload = function instantiate() {
   }
 };
 
+
+//This function deploys a notification that shows that the user's invite list is empty
 function deployInviteListEmptyNotification(){
   try{
     document.getElementById("TestGift").innerHTML = "No Invites Found! Invite Some Friends On The Invites Page!";
@@ -604,11 +644,15 @@ function deployInviteListEmptyNotification(){
   clearInterval(offlineTimer);
 }
 
+
+//This function signs out the user and clears their data from memory
 function signOut(){
   sessionStorage.clear();
   window.location.href = "index.html";
 }
 
+
+//This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
   sessionStorage.setItem("validUser", JSON.stringify(user));
   sessionStorage.setItem("userArr", JSON.stringify(userArr));
