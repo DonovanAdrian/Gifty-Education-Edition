@@ -29,6 +29,7 @@ var titleField;                         //Stores the "Title" input field on the 
 var whereField;                         //Stores the "Where" input field on the webpage
 var linkField;                          //Stores the "Link" input field on the webpage
 var spanUpdate;                         //Stores the "Update"/"Add" object on the webpage
+var inviteNote;                         //Stores the "Invite" object on the navigation tab on the webpage
 var currentGift;                        //Stores the current gift's data in memory
 var userGifts;                          //Stores the current user's gifts in memory
 var noteModal;                          //Stores the "Notification" window object on the webpage
@@ -85,6 +86,7 @@ window.onload = function instantiate() {
   whereField = document.getElementById('giftWhereInp');
   linkField = document.getElementById('giftLinkInp');
   spanUpdate = document.getElementById('updateGift');
+  inviteNote = document.getElementById('inviteNote');
   noteModal = document.getElementById('notificationModal');
   noteTitleField = document.getElementById('notificationTitle');
   noteInfoField = document.getElementById('notificationInfo');
