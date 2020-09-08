@@ -28,7 +28,6 @@ var logoutLimit = 900;                  //The maximum limit to logout the user a
 
 var giftCreationDate;                   //Stores the "Creation Date" field on a gift's detail window object
 var giftList;                           //Stores the "Gift List" object on the webpage
-var giftListHTML;                       //Stores the inner text of the "Gift List" object on the webpage
 var giftStorage;                        //Stores a gift object in memory to be sent to the "giftAddUpdate" page
 var privateList;                        //Clears the "privateList" object in memory before being sent to "giftAddUpdate"
 var boughtGifts;                        //Stores the "Bought Gifts" object on the webpage
@@ -237,7 +236,6 @@ window.onload = function instantiate() {
   notificationBtn = document.getElementById('notificationButton');
   giftCreationDate = document.getElementById('giftCreationDate');
   giftList = document.getElementById('giftListContainer');
-  giftListHTML = document.getElementById('giftListContainer').innerHTML;
   offlineModal = document.getElementById('offlineModal');
   offlineSpan = document.getElementById('closeOffline');
   noteModal = document.getElementById('notificationModal');

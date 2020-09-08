@@ -14,7 +14,7 @@
   - [x] confirmation.html
   - [x] settings.html 
   - [x] faq.html
-  - [ ] moderation.html
+  - [x] moderation.html
   - [ ] passOp.js
 - [ ] Keep Gifty:EE updated with Gifty
 - [ ] Create a Data Flow Diagram for each page

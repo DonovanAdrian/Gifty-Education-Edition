@@ -1,38 +1,48 @@
-var listeningFirebaseRefs = [];
-var inviteArr = [];
+/*
+Welcome to the moderation page! This page welcomes moderators to all the users in their Gifty database. You can view
+each user's UID, user name, number of gifts (and gift list, if clicked here), number of friends, and password (if
+clicked here). A moderator can also grant a user the moderator role and send them a message individually. Eventually,
+the moderator will also be able to warn and ban the user from this page, but that is not implemented at this time.
+Finally, a moderator can also send a message globally, to all the users, as needed. As always, there is also a
+navigation tab at the top of the window that shows the user their options for which page they would like to navigate
+to or sign out.
 
-var areYouStillThereBool = false;
+As per usual, the typical object declarations are below!
+ */
 
-var moderationSet = 1;
-var userCounter = 0;
-var onlineInt = 0;
-var loadingTimerInt = 0;
-var logoutReminder = 300;
-var logoutLimit = 1800;
+var listeningFirebaseRefs = [];         //An array that stores locations in the database that need to be listened to
+var inviteArr = [];                     //An array that stores all the user's invites that are fetched from the database
 
-var giftList;
-var giftListHTML;
-var offline;
-var offlineSpan;
-var offlineModal;
-var addGlobalMsgModal;
-var addGlobalMsgBtn;
-var sendPrivateMessage;
-var user;
-var userInvites;
-var offlineTimer;
-var loadingTimer;
-var modal;
-var noteModal;
-var noteInfoField;
-var noteTitleField;
-var noteSpan;
-var listNote;
-var inviteNote;
-var userInitial;
+var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
+
+var moderationSet = 1;                  //An integer used to verify that a moderator is viewing this page
+var userCounter = 0;                    //An integer used to keep track of the number of users loaded on the page
+var onlineInt = 0;                      //An integer used to tell if the authenticated user is online
+var loadingTimerInt = 0;                //An integer used to keep track of how long it takes to load the list of gifts
+var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
+var logoutLimit = 1800;                 //The maximum limit to logout the user after being inactive for too long
+
+var giftList;                           //Stores the "Gift List" object on the webpage
+var offlineSpan;                        //Stores the "X" object on the "Offline" window
+var offlineModal;                       //Stores the "Offline" window object on the webpage
+var addGlobalMsgModal;                  //Stores the "Global Message" modal for sending global messages
+var addGlobalMsgBtn;                    //Stores the "Global Message" button for sending global messages
+var sendPrivateMessage;                 //Stores the "Private Message" text field for sending individual messages
+var user;                               //Stores an authenticated user's data
+var offlineTimer;                       //Stores the "Offline" timer globally so it can be cancelled from any function
+var loadingTimer;                       //Stores the "Loading" timer globally so it can be cancelled from any function
+var modal;                              //Stores the modal that is used for displaying gift details
+var noteModal;                          //Stores the "Notification" window object on the webpage
+var noteInfoField;                      //Stores the "Info" field on the "Notification" window object
+var noteTitleField;                     //Stores the "Title" field on the "Notification" window object
+var noteSpan;                           //Stores the "X" object on the "Notification" window
+var inviteNote;                         //Stores the "Invite" object on the navigation tab on the webpage
+var userInitial;                        //Tells the webpage where to look in the database for data
+var userInvites;                        //Tells the webpage where to look in the database for data
 
 
-
+//This function will load an authenticated user's data from memory and updates various objects on the page based upon
+//the data that the user's object contains.
 function getCurrentUser(){
   try {
     user = JSON.parse(sessionStorage.validUser);
@@ -56,13 +66,15 @@ function getCurrentUser(){
   }
 }
 
+
+//This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
+//from the indexAlg is fetched here to reconnect to the database. Additionally, the database is queried, the "toggle"
+//feature is activated on the "Settings" tab, and the login timer is started.
 window.onload = function instantiate() {
 
   giftList = document.getElementById('giftListContainer');
-  giftListHTML = document.getElementById('giftListContainer').innerHTML;
   offlineModal = document.getElementById('offlineModal');
   offlineSpan = document.getElementById('closeOffline');
-  listNote = document.getElementById('listNote');
   inviteNote = document.getElementById('inviteNote');
   noteModal = document.getElementById('notificationModal');
   noteTitleField = document.getElementById('notificationTitle');
@@ -163,6 +175,9 @@ window.onload = function instantiate() {
 
   loginTimer(); //if action, then reset timer
 
+
+    //This function controls how long the user has been inactive for and reminds them that they have been inactive
+    //after a certain amount of time. If the user is inactive for too long, they will be logged out
   function loginTimer(){
     var loginNum = 0;
     console.log("Login Timer Started");
@@ -195,6 +210,9 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+    //This function closes any open modals and opens the notification modal to tell the user that they have
+    //been inactive for too long.
   function areYouStillThereNote(timeElapsed){
     var timeRemaining = logoutLimit - timeElapsed;
     var timeMins = Math.floor(timeRemaining/60);
@@ -217,6 +235,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function edits the notification modal to welcome the user back after being inactive
   function ohThereYouAre(){
     noteInfoField.innerHTML = "Welcome back, " + user.name;
     noteTitleField.innerHTML = "Oh, There You Are!";
@@ -240,6 +260,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function activates a "toggle" on the settings button to notify the user that they are on the moderation page.
   function settingsModerateButton(){
     var nowConfirm = 0;
     var alternator = 0;
@@ -261,6 +283,8 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+  //This function generates the modal that is used for sending messages to individual users
   function generatePrivateMessageDialog(userData) {
     var sendNote = document.getElementById('sendNote');
     var cancelNote = document.getElementById('cancelNote');
@@ -300,6 +324,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+  //This function adds the private message to the specified user onto the database
   function addPrivateMessageToDB(userData, message) {
     var userNotificationArr = [];
     if(userData.notifications == undefined){
@@ -318,6 +344,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function generates the modal that is used for sending messages to users globally
   function initializeGlobalNotification() {
     addGlobalMsgBtn.innerHTML = "Send Global Message";
     addGlobalMsgBtn.onclick = function (){
@@ -360,6 +388,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function adds the private message to all users onto the database
   function addGlobalMessageToDB(message) {
     var userNotificationArr = [];
     for (var i = 0; i < userArr.length; i++){
@@ -380,6 +410,10 @@ window.onload = function instantiate() {
     }
   }
 
+
+    //This is the function where all the data is accessed and put into arrays. Those arrays are also updated and removed
+    //as new data is received. New data is checked through the "listeningFirebaseRefs" array, as this is where database
+    //locations are stored and checked on regularly.
   function databaseQuery() {
 
     userInitial = firebase.database().ref("users/");
@@ -464,6 +498,9 @@ window.onload = function instantiate() {
     listeningFirebaseRefs.push(userInvites);
   }
 
+
+    //This function is called from the databaseQuery() function and helps find the index of a user's data to properly
+    //update or remove it from the userArr array.
   function findUIDItemInArr(item, userArray){
     for(var i = 0; i < userArray.length; i++){
       if(userArray[i].uid == item){
@@ -474,6 +511,11 @@ window.onload = function instantiate() {
     return -1;
   }
 
+
+    //This function creates each user element that appears on the page. Once a user's element is clicked, their
+    //respective unique id, user name, number of gifts (if clicked), number of friends, and password (if clicked) are
+    //available. The user can also be granted moderator role, sent a private message, warned, or banned from here. It
+    //should be noted that warning and banning are not currently operational functions.
   function createUserElement(userData){
     try{
       document.getElementById("TestGift").remove();
@@ -595,6 +637,11 @@ window.onload = function instantiate() {
     userCounter++;
   }
 
+
+    //This function changes each user element that appears on the page. Once a user's element is clicked, their
+    //respective unique id, user name, number of gifts (if clicked), number of friends, and password (if clicked) are
+    //available. The user can also be granted moderator role, sent a private message, warned, or banned from here. It
+    //should be noted that warning and banning are not currently operational functions.
   function changeUserElement(userData) {
     var editGift = document.getElementById("user" + userData.uid);
     editGift.innerHTML = userData.name;
@@ -702,6 +749,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+  //This function removes a user element from the page if a user were to delete their account.
   function removeUserElement(uid) {
     document.getElementById("user" + uid).remove();
 
@@ -712,6 +761,8 @@ window.onload = function instantiate() {
   }
 };
 
+
+//This function deploys a notification that the user list is empty
 function deployUserListEmptyNotification(){
   try{
     document.getElementById("TestGift").innerHTML = "No Users Found!";
@@ -728,11 +779,15 @@ function deployUserListEmptyNotification(){
   clearInterval(offlineTimer);
 }
 
+
+//This function signs out the user and clears their data from memory
 function signOut(){
   sessionStorage.clear();
   window.location.href = "index.html";
 }
 
+
+//This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
   sessionStorage.setItem("validUser", JSON.stringify(user));
   sessionStorage.setItem("userArr", JSON.stringify(userArr));
