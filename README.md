@@ -15,8 +15,10 @@
   - [x] settings.html 
   - [x] faq.html
   - [x] moderation.html
-  - [ ] passOp.js
-- [ ] Keep Gifty:EE updated with Gifty
+  - [x] passOp.js
+  - [ ] boughtGiftsAlg.js
+  - [ ] notificationsAlg.js
+  - [ ] privateFriendListAlg.js
 - [ ] Create a Data Flow Diagram for each page
 
 

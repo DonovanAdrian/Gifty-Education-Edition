@@ -1,11 +1,29 @@
+/*
+Welcome to the passOp file! This file encodes and decodes user's pins into a string of numbers and letters! I never
+personally expected to be giving a formal explanation about this page, but I also intended to make this project into
+something MUCH larger than it ended up being. Oh well! Things just didn't pan out, and this algorithm doesn't need to
+be kept a secret. To further clarify the actual purpose of this algorithm, it was meant only as a means of preventing
+accidental viewing of a user's pin by a moderator (me). That is why the moderator page requires the moderator to click
+on the text to view a password. It is only meant as a safety counter measure in case a user wishes to recover their
+account pin number.
+
+So, as per usual, there are a handful of object declarations below!
+ */
+
 var encodeStore = ["0", "1", "2", "3"];
 var encodeNameBool = true;
 var userArr = [];
 
+
+//This function is meant to inject the user array into this file.
 function injectUserArr(userArr){
   this.userArr = userArr;
 }
 
+
+//This function is meant to verify that the encode name being generated is unique when compared to other user's encode
+//names. This ended up being something that wasn't entirely necessary in the long run, but didn't hurt performance, so
+//it wasn't deprecated.
 function checkEncodeName(newEncodeName){
   var encodeString;
   var encodeKey;
@@ -23,6 +41,9 @@ function checkEncodeName(newEncodeName){
   }
 }
 
+
+//This function was meant to tell the algorithm which letter refers to what mathematical operation is necessary to
+//decode or encode the string of text. This function ended up being deprecated.
 function whatIsInt(rChar){
   switch (rChar){
     case "A":
@@ -68,6 +89,9 @@ function whatIsInt(rChar){
   return rChar;
 }
 
+
+//This function was meant to tell the algorithm which number refers to what mathematical operation is necessary to
+//decode or encode the string of text. This function ended up being deprecated.
 function IntToChar(rChar){
   switch (rChar){
     case 1:
@@ -102,6 +126,8 @@ function IntToChar(rChar){
 }
 
 
+//This function was meant to tell the algorithm which number/letter refers to what mathematical operation is necessary
+//to decode or encode the string of text. This function replaced the latter two functions.
 function whatIsOp(rChar){
   switch (rChar){
     case "A":
@@ -163,6 +189,8 @@ function whatIsOp(rChar){
   return rChar;
 }
 
+
+//This function returns a random alphanumeric character.
 function getRandomAlphabet(){
   var alphabet = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ";
   var selector = Math.floor((Math.random() * alphabet.length));
@@ -170,6 +198,8 @@ function getRandomAlphabet(){
   return charSelect;
 }
 
+
+//This function returns a random number.
 function getRandomNumber(){
   var alphabet = "123456789";
   var selector = Math.floor((Math.random() * alphabet.length));
@@ -177,6 +207,9 @@ function getRandomNumber(){
   return charSelect;
 }
 
+
+//This function returns a random number, which is used as the upper limit of tries the algorithm will use to iterate
+//over a string.
 function getRandomMax(){
   var alphabet = "1234";
   var selector = Math.floor((Math.random() * alphabet.length));
@@ -184,6 +217,8 @@ function getRandomMax(){
   return charSelect;
 }
 
+//This function will return a random valid operation letter. Operation letters are used to tell which operation is being
+//used to encode a message.
 function getRandomLetter(){
   var alphabet = "ABCDEFGHIJKLMNPQRSTU";
   var selector = Math.floor((Math.random() * alphabet.length));
@@ -191,6 +226,8 @@ function getRandomLetter(){
   return charSelect;
 }
 
+//This function returns a random valid separation letter. Separation letters separate the operation letters from the
+//operation letters and numbers.
 function getRandomSep(){
   var alphabet = "VWX";
   var selector = Math.floor((Math.random() * alphabet.length));
@@ -198,6 +235,7 @@ function getRandomSep(){
   return charSelect;
 }
 
+//This function returns a random 0 or 1 to essentially "flip a coin".
 function getRandomBool(){
   var alphabet = "01";
   var selector = Math.floor((Math.random() * alphabet.length));
@@ -205,6 +243,8 @@ function getRandomBool(){
   return charSelect;
 }
 
+//This function checks that an input letter is indeed a valid alphabet letter. (Yes, I know there are better ways of
+//doing this now).
 function isAlph(rChar){
   switch (rChar){
     case "A":
@@ -239,6 +279,7 @@ function isAlph(rChar){
   }
 }
 
+//This function returns a number which is used to tell how long or short a given encode's name is.
 function getNameGenNum(){
   var num = getRandomNumber();
   switch(num) {
@@ -279,6 +320,7 @@ function getNameGenNum(){
   return num;
 }
 
+//This function returns the digit setter, which is used to encode and decode the user's pin number.
 function generateDigitSetter(){
   var rNum;
   var rChar;
@@ -360,6 +402,7 @@ function generateDigitSetter(){
   return tempStr;
 }
 
+//This function encodes a user's pin number as a string of numbers, letters, and colons.
 function encode(input) {
   var nameGenNum = getNameGenNum();
   var encodeStr = "";
@@ -410,6 +453,7 @@ function encode(input) {
   return encodeStr;
 }
 
+//This function decodes the encoded string of numbers, letters, and colons. It then outputs the user's pin number.
 function decode(input){
   var encodeString = input.split(":");
   var encodeKey = encodeString[0];
