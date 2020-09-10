@@ -194,8 +194,7 @@ function whatIsOp(rChar){
 function getRandomAlphabet(){
   var alphabet = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ";
   var selector = Math.floor((Math.random() * alphabet.length));
-  var charSelect = alphabet.charAt(selector);
-  return charSelect;
+  return alphabet.charAt(selector);
 }
 
 
@@ -203,8 +202,7 @@ function getRandomAlphabet(){
 function getRandomNumber(){
   var alphabet = "123456789";
   var selector = Math.floor((Math.random() * alphabet.length));
-  var charSelect = alphabet.charAt(selector);
-  return charSelect;
+  return alphabet.charAt(selector);
 }
 
 
@@ -213,8 +211,7 @@ function getRandomNumber(){
 function getRandomMax(){
   var alphabet = "1234";
   var selector = Math.floor((Math.random() * alphabet.length));
-  var charSelect = alphabet.charAt(selector);
-  return charSelect;
+  return alphabet.charAt(selector);
 }
 
 //This function will return a random valid operation letter. Operation letters are used to tell which operation is being
@@ -222,8 +219,7 @@ function getRandomMax(){
 function getRandomLetter(){
   var alphabet = "ABCDEFGHIJKLMNPQRSTU";
   var selector = Math.floor((Math.random() * alphabet.length));
-  var charSelect = alphabet.charAt(selector);
-  return charSelect;
+  return alphabet.charAt(selector);
 }
 
 //This function returns a random valid separation letter. Separation letters separate the operation letters from the
@@ -231,16 +227,14 @@ function getRandomLetter(){
 function getRandomSep(){
   var alphabet = "VWX";
   var selector = Math.floor((Math.random() * alphabet.length));
-  var charSelect = alphabet.charAt(selector);
-  return charSelect;
+  return alphabet.charAt(selector);
 }
 
 //This function returns a random 0 or 1 to essentially "flip a coin".
 function getRandomBool(){
   var alphabet = "01";
   var selector = Math.floor((Math.random() * alphabet.length));
-  var charSelect = alphabet.charAt(selector);
-  return charSelect;
+  return alphabet.charAt(selector);
 }
 
 //This function checks that an input letter is indeed a valid alphabet letter. (Yes, I know there are better ways of
@@ -440,7 +434,7 @@ function encode(input) {
       operandResult = operand1 * operand2;
     } else {
       operand1 = parseInt(operand1);
-      operand2 = parseInt(input.charAt(i))
+      operand2 = parseInt(input.charAt(i));
       operandResult = operand1 + operand2;
     }
     if(i < input.length-1) {
