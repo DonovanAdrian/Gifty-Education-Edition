@@ -17,7 +17,7 @@
   - [x] moderation.html
   - [x] passOp.js
   - [x] boughtGiftsAlg.js
-  - [ ] notificationsAlg.js
+  - [x] notificationsAlg.js
   - [ ] privateFriendListAlg.js
 - [ ] Create a Data Flow Diagram for each page
 
