@@ -1,36 +1,46 @@
-var userArr = [];
-var inviteArr = [];
-var notificationArr = [];
-var readNotificationArr = [];
-var listeningFirebaseRefs = [];
+/*
+Welcome to the notifications page! This page welcomes an authenticated user to their notifications. The user can
+currently be notified of deleted gifts, updated gifts, invites, and private/global messages. Once the gifts are read,
+the notifications are then stored in a separate array, which are then crossed out. This new array is used to tell
+whether all the current notifications have been read or not, which turns off the notification button on each page.
 
-var areYouStillThereBool = false;
+As usual, below are the usual object declarations!
+ */
 
-var notificationCount = 0;
-var onlineInt = 0;
-var loadingTimerInt = 0;
-var logoutReminder = 300;
-var logoutLimit = 900;
+var userArr = [];                       //An array that stores all the user data that is fetched from the database
+var inviteArr = [];                     //An array that stores all the user's invites that are fetched from the database
+var notificationArr = [];               //An array that stores all the user's unread notifications
+var readNotificationArr = [];           //An array that stores all the user's read notifications
+var listeningFirebaseRefs = [];         //An array that stores locations in the database that need to be listened to
 
-var offline;
-var notificationList;
-var offlineSpan;
-var offlineModal;
-var user;
-var userReadNotifications;
-var userNotifications;
-var userInvites;
-var modal;
-var listNote;
-var inviteNote;
-var loadingTimer;
-var offlineTimer;
-var noteModal;
-var addGlobalMsgModal;
-var noteInfoField;
-var noteTitleField;
-var noteSpan;
+var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
 
+var notificationCount = 0;              //An integer that keeps track of the number of notification loaded on the page
+var onlineInt = 0;                      //An integer used to tell if the authenticated user is online
+var loadingTimerInt = 0;                //An integer used to keep track of how long it takes to load the list of gifts
+var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
+var logoutLimit = 900;                  //The maximum limit to logout the user after being inactive for too long
+
+var notificationList;                   //Stores the "Notification List" object on the webpage
+var offlineSpan;                        //Stores the "X" object on the "Offline" window
+var offlineModal;                       //Stores the "Offline" window object on the webpage
+var user;                               //Stores an authenticated user's data
+var userReadNotifications;              //Tells the webpage where to look in the database for data
+var userNotifications;                  //Tells the webpage where to look in the database for data
+var userInvites;                        //Tells the webpage where to look in the database for data
+var modal;                              //Stores the modal that is used for displaying gift details
+var inviteNote;                         //Stores the "Invite" object on the navigation tab on the webpage
+var offlineTimer;                       //Stores the "Offline" timer globally so it can be cancelled from any function
+var loadingTimer;                       //Stores the "Loading" timer globally so it can be cancelled from any function
+var noteModal;                          //Stores the "Notification" window object on the webpage
+var noteInfoField;                      //Stores the "Info" field on the "Notification" window object
+var noteTitleField;                     //Stores the "Title" field on the "Notification" window object
+var noteSpan;                           //Stores the "X" object on the "Notification" window
+var addGlobalMsgModal;                  //Stores the modal used to reply to private messages
+
+
+//This function will load an authenticated user's data from memory and updates various objects on the page based upon
+//the data that the user's object contains.
 function getCurrentUser(){
   try {
     user = JSON.parse(sessionStorage.validUser);
@@ -67,12 +77,15 @@ function getCurrentUser(){
   }
 }
 
+
+//This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
+//from the indexAlg is fetched here to reconnect to the database. Additionally, the database is queried and the login
+//timer is started.
 window.onload = function instantiate() {
 
   notificationList = document.getElementById("notificationListContainer");
   offlineModal = document.getElementById('offlineModal');
   offlineSpan = document.getElementById("closeOffline");
-  listNote = document.getElementById('listNote');
   inviteNote = document.getElementById('inviteNote');
   noteModal = document.getElementById('notificationModal');
   noteTitleField = document.getElementById('notificationTitle');
@@ -170,6 +183,9 @@ window.onload = function instantiate() {
 
   loginTimer(); //if action, then reset timer
 
+
+    //This function controls how long the user has been inactive for and reminds them that they have been inactive
+    //after a certain amount of time. If the user is inactive for too long, they will be logged out
   function loginTimer(){
     var loginNum = 0;
     console.log("Login Timer Started");
@@ -202,6 +218,9 @@ window.onload = function instantiate() {
     }, 1000);
   }
 
+
+    //This function closes any open modals and opens the notification modal to tell the user that they have
+    //been inactive for too long.
   function areYouStillThereNote(timeElapsed){
     var timeRemaining = logoutLimit - timeElapsed;
     var timeMins = Math.floor(timeRemaining/60);
@@ -224,6 +243,8 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This function edits the notification modal to welcome the user back after being inactive
   function ohThereYouAre(){
     noteInfoField.innerHTML = "Welcome back, " + user.name;
     noteTitleField.innerHTML = "Oh, There You Are!";
@@ -247,6 +268,10 @@ window.onload = function instantiate() {
     };
   }
 
+
+    //This is the function where all the data is accessed and put into arrays. Those arrays are also updated and removed
+    //as new data is received. New data is checked through the "listeningFirebaseRefs" array, as this is where database
+    //locations are stored and checked on regularly.
   function databaseQuery() {
 
     userReadNotifications = firebase.database().ref("users/" + user.uid + "/readNotifications");
@@ -323,6 +348,10 @@ window.onload = function instantiate() {
     listeningFirebaseRefs.push(userInvites);
   }
 
+
+    //This function creates each notification's element in the page. Upon clicking on a notification's element, a modal
+    //will appear with the proper notification's details and buttons. In this case, it can get particularly hairy as
+    //each notification's type has distinct differences in its data.
   function createNotificationElement(notificationString, notificationKey){
     try{
       document.getElementById("TestGift").remove();
@@ -501,6 +530,10 @@ window.onload = function instantiate() {
     notificationCount++;
   }
 
+
+    //This function updates each notification's element in the page. Upon clicking on a notification's element, a modal
+    //will appear with the proper notification's details and buttons. In this case, it can get particularly hairy as
+    //each notification's type has distinct differences in its data.
   function changeNotificationElement(notificationString, notificationKey){
     try{
       document.getElementById("TestGift").remove();
@@ -678,6 +711,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function generates the necessary dialog to reply with a private message to a user.
   function generatePrivateMessageDialog(userData) {
     var sendNote = document.getElementById('sendNote');
     var cancelNote = document.getElementById('cancelNote');
@@ -715,10 +750,14 @@ window.onload = function instantiate() {
     };
   }
 
+
+  //This function adds a specific key that is necessary to show that this notification is a private message.
   function generatePrivateMessage(userUID, message){
     return userUID + "@#$:" + message;
   }
 
+
+  //This function adds the private message to the proper recipient's data in the database.
   function addPrivateMessageToDB(userData, message) {
     var userNotificationArr = [];
     if(userData.notifications == undefined){
@@ -737,6 +776,9 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function uses the uid stored in a private message to fetch the rest of the necessary data to display a new
+  //private message notification.
   function findFriendUserData(giftOwnerUID) {
     var i = findUIDItemInArr(giftOwnerUID, userArr);
     //console.log(i + " " + userArr[i].name);
@@ -746,6 +788,9 @@ window.onload = function instantiate() {
     return i;
   }
 
+
+    //This function is called from the databaseQuery() function and helps find the index of a user's data to properly
+    //update or remove it from the userArr array.
   function findUIDItemInArr(item, userArray){
     for(var i = 0; i < userArray.length; i++){
       if(userArray[i].uid == item){
@@ -756,6 +801,8 @@ window.onload = function instantiate() {
     return -1;
   }
 
+
+  //This function deletes a given notification from the current user's data and updates it to the database.
   function deleteNotification(uid) {
     var deleteNotificationBool = true;
     console.log("Deleting " + uid);
@@ -790,6 +837,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function removes a given notification's element from the page.
   function removeNotificationElement(uid) {
     document.getElementById("notification" + uid).remove();
 
@@ -799,6 +848,8 @@ window.onload = function instantiate() {
     }
   }
 
+
+  //This function updates any read notifications to the database.
   function updateReadNotificationToDB(){
     //console.log(readNotificationArr);
     if (user.readNotifications != undefined) {
@@ -812,6 +863,8 @@ window.onload = function instantiate() {
   }
 };
 
+
+//This function deploys a notification that shows that the user's notification list is empty
 function deployNotificationListEmptyNotification(){
   try{
     document.getElementById("TestGift").innerHTML = "No Notifications Found!";
@@ -828,11 +881,15 @@ function deployNotificationListEmptyNotification(){
   clearInterval(offlineTimer);
 }
 
+
+//This function signs out the user and clears their data from memory
 function signOut(){
   sessionStorage.clear();
   window.location.href = "index.html";
 }
 
+
+//This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
   sessionStorage.setItem("validUser", JSON.stringify(user));
   sessionStorage.setItem("userArr", JSON.stringify(userArr));
