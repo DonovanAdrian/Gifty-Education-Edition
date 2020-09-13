@@ -3,22 +3,7 @@
 
 
 ## ***Task List***
-- [ ] Add Helpful Comments
-  - [x] index.html
-  - [x] userAddUpdate.html
-  - [x] home.html 
-  - [x] giftAddUpdate.html
-  - [x] lists.html
-  - [x] friendList.html
-  - [x] invites.html
-  - [x] confirmation.html
-  - [x] settings.html 
-  - [x] faq.html
-  - [x] moderation.html
-  - [x] passOp.js
-  - [x] boughtGiftsAlg.js
-  - [x] notificationsAlg.js
-  - [ ] privateFriendListAlg.js
+- [x] Add Helpful Comments
 - [ ] Create a Data Flow Diagram for each page
 
 

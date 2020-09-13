@@ -29,7 +29,6 @@ var moderationSet = -1;                 //An integer used to tell if a moderator
 
 var giftCreationDate;                   //Stores the "Creation Date" field on a gift's detail window object
 var giftList;                           //Stores the "Gift List" object on the webpage
-var giftListHTML;                       //Stores the inner text of the "Gift List" object on the webpage
 var backBtn;                            //Stores the "Back To Lists" object on the webpage
 var offlineSpan;                        //Stores the "X" object on the "Offline" window
 var offlineModal;                       //Stores the "Offline" window object on the webpage
@@ -122,7 +121,6 @@ window.onload = function instantiate() {
   notificationBtn = document.getElementById('notificationButton');
   giftCreationDate = document.getElementById('giftCreationDate');
   giftList = document.getElementById('giftListContainer');
-  giftListHTML = document.getElementById('giftListContainer').innerHTML;
   offlineModal = document.getElementById('offlineModal');
   offlineSpan = document.getElementById('closeOffline');
   noteSpan = document.getElementById('closeNotification');
