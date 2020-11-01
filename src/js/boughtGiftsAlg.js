@@ -48,64 +48,58 @@ var userInvites;                        //Tells the webpage where to look in the
 //This function will load an authenticated user's data from memory and updates various objects on the page based upon
 //the data that the user's object contains.
 function getCurrentUser(){
-  try {
-    user = JSON.parse(sessionStorage.validUser);
-    console.log("User: " + user.userName + " logged in");
-    if (user.invites == undefined) {
-      console.log("Invites Not Found");
-    } else if (user.invites != undefined) {
-      if (user.invites.length > 0) {
-        inviteNote.style.background = "#ff3923";
-      }
-    }
+    try {
+        user = JSON.parse(sessionStorage.validUser);
+        console.log("User: " + user.userName + " logged in");
+        if (user.invites == undefined) {
+            console.log("Invites Not Found");
+        } else if (user.invites != undefined) {
+            if (user.invites.length > 0) {
+                inviteNote.style.background = "#ff3923";
+            }
+        }
 
-    if (user.readNotifications == undefined) {
-      console.log("Read Notifications Not Found");
-    } else {
-      readNotificationsBool = true;
-    }
-
-    if (user.readNotifications == undefined) {
-      console.log("Read Notifications Not Found");
-    } else {
-      readNotificationsBool = true;
-    }
-
-    if (user.notifications == undefined) {
-      console.log("Notifications Not Found");
-    } else if (user.notifications != undefined) {
-      if (readNotificationsBool){
-        if (user.notifications.length > 0 && user.readNotifications.length != user.notifications.length) {
-          notificationBtn.src = "img/bellNotificationOn.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(user));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+        if (user.readNotifications == undefined) {
+            console.log("Read Notifications Not Found");
         } else {
-          notificationBtn.src = "img/bellNotificationOff.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(user));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+            readNotificationsBool = true;
         }
-      } else if (user.notifications.length > 0) {
-        notificationBtn.src = "img/bellNotificationOn.png";
-        notificationBtn.onclick = function() {
-          sessionStorage.setItem("validUser", JSON.stringify(user));
-          sessionStorage.setItem("userArr", JSON.stringify(userArr));
-          window.location.href = "notifications.html";
+
+        if (user.readNotifications == undefined) {
+            console.log("Read Notifications Not Found");
+        } else {
+            readNotificationsBool = true;
         }
-      }
+
+        if (user.notifications == undefined) {
+            console.log("Notifications Not Found");
+        } else if (user.notifications != undefined) {
+            if (readNotificationsBool){
+                if (user.notifications.length > 0 && user.readNotifications.length != user.notifications.length) {
+                    notificationBtn.src = "img/bellNotificationOn.png";
+                    notificationBtn.onclick = function() {
+                        navigation(4);
+                    }
+                } else {
+                    notificationBtn.src = "img/bellNotificationOff.png";
+                    notificationBtn.onclick = function() {
+                        navigation(4);
+                    }
+                }
+            } else if (user.notifications.length > 0) {
+                notificationBtn.src = "img/bellNotificationOn.png";
+                notificationBtn.onclick = function() {
+                    navigation(4);
+                }
+            }
+        }
+        userArr = JSON.parse(sessionStorage.userArr);
+        userBoughtGiftsArr = JSON.parse(sessionStorage.boughtGifts);
+        userBoughtGiftsUsersArr = JSON.parse(sessionStorage.boughtGiftsUsers);
+    } catch (err) {
+        console.log(err.toString());
+        window.location.href = "index.html";
     }
-    userArr = JSON.parse(sessionStorage.userArr);
-    userBoughtGiftsArr = JSON.parse(sessionStorage.boughtGifts);
-    userBoughtGiftsUsersArr = JSON.parse(sessionStorage.boughtGiftsUsers);
-  } catch (err) {
-    console.log(err.toString());
-    window.location.href = "index.html";
-  }
 }
 
 
@@ -205,9 +199,7 @@ window.onload = function instantiate() {
   //initialize back button
   backBtn.innerHTML = "Back To Home";
   backBtn.onclick = function() {
-    sessionStorage.setItem("validUser", JSON.stringify(user));
-    sessionStorage.setItem("userArr", JSON.stringify(userArr));
-    window.location.href = "home.html";
+      navigation(0);
   };
 
   loadingTimer = setInterval(function(){
@@ -243,9 +235,7 @@ window.onload = function instantiate() {
       }
     } else {
       alert("There has been a critical error, redirecting back home...");
-      sessionStorage.setItem("validUser", JSON.stringify(user));
-      sessionStorage.setItem("userArr", JSON.stringify(userArr));
-      window.location.href = "home.html";
+      navigation(0);
     }
   }
 
@@ -297,7 +287,11 @@ window.onload = function instantiate() {
     }
 
 
-    modal.style.display = "none";
+    try {
+        modal.style.display = "none";
+    } catch (err) {
+        //console.log("Basic Modal Not Open");
+    }
     noteInfoField.innerHTML = "You have been inactive for 5 minutes, you will be logged out in " + timeMins
       + ":" + timeSecs + "!";
     noteTitleField.innerHTML = "Are You Still There?";
