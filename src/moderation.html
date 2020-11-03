@@ -10,10 +10,10 @@
   <script src="js/passOp.js" type="text/javascript"></script>
   <script src="js/moderationAlg.js" type="text/javascript"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/5.9.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/5.8.6/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-analytics.js"></script>
 
   <div class="topnav">
     <ul>
@@ -33,6 +33,8 @@
   <li class="gift" id="TestGift">Loading...</li>
 </ul>
 
+<span class="boughtBtn" id="activateSecretSanta">Loading... Please Wait</span>
+
 <span class="addBtn" id="sendGlobalNotification">Loading... Please Wait</span>
 
 <div id="giftModal" class="modal">
@@ -51,6 +53,7 @@
       <p id="userGifts">Loading Gifts...</p>
       <p id="userFriends">Loading Friends...</p>
       <p id="userPassword">Loading Password...</p>
+      <p id="userSecretSanta">Loading Secret Santa Status...</p>
       <p id="moderatorOp">Loading Mod Option...</p>
       <p id="sendPrivateMessage">Loading Private Message...</p>
     </div>
@@ -83,6 +86,26 @@
     <div class="modal-footer">
       <h3 style="float: left;padding-left: 10px" id="sendNote">Send</h3>
       <h3 style="float: right;padding-right: 10px" id="cancelNote">Cancel</h3>
+    </div>
+  </div>
+</div>
+
+<div id="santaModal" class="modal">
+  <div class="modal-content">
+    <!--Modal Header-->
+    <div class="modal-header">
+      <span id="secretSantaSpan" class="close">&times;</span>
+      <h2>Secret Santa Options</h2>
+    </div>
+
+    <!--Modal Body-->
+    <div class="modal-body">
+      <p id="secretSantaShuffle">Loading Shuffle Button...</p>
+      <p id="secretSantaBtn">Loading Secret Santa Button...</p>
+    </div>
+
+    <!--Modal Footer-->
+    <div class="modal-footer">
     </div>
   </div>
 </div>
