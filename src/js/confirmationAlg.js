@@ -42,57 +42,51 @@ var notificationBtn;                    //Stores the "Notification" object on th
 //This function will load an authenticated user's data from memory and updates various objects on the page based upon
 //the data that the user's object contains.
 function getCurrentUser(){
-  try {
-    user = JSON.parse(sessionStorage.validUser);
-    console.log("User: " + user.userName + " logged in");
-    if (user.invites == undefined) {
-      console.log("Invites Not Found");
-      deployInviteListEmptyNotification();
-    } else if (user.invites != undefined) {
-      if (user.invites.length > 0) {
-        inviteNote.style.background = "#ff3923";
-      }
-    }
+    try {
+        user = JSON.parse(sessionStorage.validUser);
+        console.log("User: " + user.userName + " logged in");
+        if (user.invites == undefined) {
+            console.log("Invites Not Found");
+            deployInviteListEmptyNotification();
+        } else if (user.invites != undefined) {
+            if (user.invites.length > 0) {
+                inviteNote.style.background = "#ff3923";
+            }
+        }
 
-    if (user.readNotifications == undefined) {
-      console.log("Read Notifications Not Found");
-    } else {
-      readNotificationsBool = true;
-    }
-
-    if (user.notifications == undefined) {
-      console.log("Notifications Not Found");
-    } else if (user.notifications != undefined) {
-      if (readNotificationsBool){
-        if (user.notifications.length > 0 && user.readNotifications.length != user.notifications.length) {
-          notificationBtn.src = "img/bellNotificationOn.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(user));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+        if (user.readNotifications == undefined) {
+            console.log("Read Notifications Not Found");
         } else {
-          notificationBtn.src = "img/bellNotificationOff.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(user));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+            readNotificationsBool = true;
         }
-      } else if (user.notifications.length > 0) {
-        notificationBtn.src = "img/bellNotificationOn.png";
-        notificationBtn.onclick = function() {
-          sessionStorage.setItem("validUser", JSON.stringify(user));
-          sessionStorage.setItem("userArr", JSON.stringify(userArr));
-          window.location.href = "notifications.html";
+
+        if (user.notifications == undefined) {
+            console.log("Notifications Not Found");
+        } else if (user.notifications != undefined) {
+            if (readNotificationsBool){
+                if (user.notifications.length > 0 && user.readNotifications.length != user.notifications.length) {
+                    notificationBtn.src = "img/bellNotificationOn.png";
+                    notificationBtn.onclick = function() {
+                        navigation(5);
+                    }
+                } else {
+                    notificationBtn.src = "img/bellNotificationOff.png";
+                    notificationBtn.onclick = function() {
+                        navigation(5);
+                    }
+                }
+            } else if (user.notifications.length > 0) {
+                notificationBtn.src = "img/bellNotificationOn.png";
+                notificationBtn.onclick = function() {
+                    navigation(5);
+                }
+            }
         }
-      }
+        userArr = JSON.parse(sessionStorage.userArr);
+    } catch (err) {
+        console.log(err.toString());
+        window.location.href = "index.html";
     }
-    userArr = JSON.parse(sessionStorage.userArr);
-  } catch (err) {
-    console.log(err.toString());
-    window.location.href = "index.html";
-  }
 }
 
 
@@ -248,7 +242,11 @@ window.onload = function instantiate() {
       timeSecs = ("0" + timeSecs).slice(-2);
     }
 
-    modal.style.display = "none";
+      try {
+          modal.style.display = "none";
+      } catch (err) {
+          //console.log("Basic Modal Not Open");
+      }
     noteInfoField.innerHTML = "You have been inactive for 5 minutes, you will be logged out in " + timeMins
       + ":" + timeSecs + "!";
     noteTitleField.innerHTML = "Are You Still There?";
@@ -654,25 +652,28 @@ function signOut(){
 
 //This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
-  sessionStorage.setItem("validUser", JSON.stringify(user));
-  sessionStorage.setItem("userArr", JSON.stringify(userArr));
-  switch(nav){
-    case 0:
-      window.location.href = "home.html";
-      break;
-    case 1:
-      window.location.href = "lists.html";
-      break;
-    case 2:
-      window.location.href = "invites.html";
-      break;
-    case 3:
-      window.location.href = "settings.html";
-      break;
-    case 4:
-      window.location.href = "confirmation.html";
-      break;
-    default:
-      break;
-  }
+    sessionStorage.setItem("validUser", JSON.stringify(user));
+    sessionStorage.setItem("userArr", JSON.stringify(userArr));
+    switch(nav){
+        case 0:
+            window.location.href = "home.html";
+            break;
+        case 1:
+            window.location.href = "lists.html";
+            break;
+        case 2:
+            window.location.href = "invites.html";
+            break;
+        case 3:
+            window.location.href = "settings.html";
+            break;
+        case 4:
+            window.location.href = "confirmation.html";
+            break;
+        case 5:
+            window.location.href = "notifications.html";
+            break;
+        default:
+            break;
+    }
 }
