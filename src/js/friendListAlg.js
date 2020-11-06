@@ -17,6 +17,7 @@ var userUserNames = [];                 //An array that is used for error checki
 var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
 var readNotificationsBool = false;      //A boolean used to dictate whether all notifications have been read
 var updateGiftToDBBool = false;         //If a gift has an error, then this bool will decide to update the database
+var giftListEmptyBool = false;          //If the user has no gifts, then this bool will suppress a TestGift update
 
 var currentModalOpen = "";              //A string that keeps track of what modal is open in the case of a gift update
 
@@ -52,64 +53,60 @@ var userInvites;                        //Tells the webpage where to look in the
 //This function will load an authenticated user's data from memory and updates various objects on the page based upon
 //the data that the user's object contains.
 function getCurrentUser(){
-  try {
-    moderationSet = sessionStorage.getItem("moderationSet");
-    user = JSON.parse(sessionStorage.validGiftUser);
-    currentUser = JSON.parse(sessionStorage.validUser);
-    console.log("User: " + currentUser.userName + " logged in");
-    console.log("Friend: " + user.userName + " loaded in");
-    if (user.giftList == undefined) {
-      deployGiftListEmptyNotification();
-    } else if (user.giftList.length == 0) {
-      deployGiftListEmptyNotification();
-    }
-    if (currentUser.invites == undefined) {
-      console.log("Invites Not Found");
-    } else if (currentUser.invites != undefined) {
-      if (currentUser.invites.length > 0) {
-        inviteNote.style.background = "#ff3923";
-      }
-    }
+    try {
+        moderationSet = sessionStorage.getItem("moderationSet");
+        user = JSON.parse(sessionStorage.validGiftUser);
+        currentUser = JSON.parse(sessionStorage.validUser);
+        console.log("User: " + currentUser.userName + " logged in");
+        console.log("Friend: " + user.userName + " loaded in");
+        if (user.giftList == undefined) {
+            deployGiftListEmptyNotification();
+            giftListEmptyBool = true;
+        } else if (user.giftList.length == 0) {
+            deployGiftListEmptyNotification();
+            giftListEmptyBool = true;
+        }
+        if (currentUser.invites == undefined) {
+            console.log("Invites Not Found");
+        } else if (currentUser.invites != undefined) {
+            if (currentUser.invites.length > 0) {
+                inviteNote.style.background = "#ff3923";
+            }
+        }
 
-    if (currentUser.readNotifications == undefined) {
-      console.log("Read Notifications Not Found");
-    } else {
-      readNotificationsBool = true;
-    }
-
-    if (currentUser.notifications == undefined) {
-      console.log("Notifications Not Found");
-    } else if (currentUser.notifications != undefined) {
-      if (readNotificationsBool){
-        if (currentUser.notifications.length > 0 && currentUser.readNotifications.length != currentUser.notifications.length) {
-          notificationBtn.src = "img/bellNotificationOn.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(currentUser));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+        if (currentUser.readNotifications == undefined) {
+            console.log("Read Notifications Not Found");
         } else {
-          notificationBtn.src = "img/bellNotificationOff.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(currentUser));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+            readNotificationsBool = true;
         }
-      } else if (currentUser.notifications.length > 0) {
-        notificationBtn.src = "img/bellNotificationOn.png";
-        notificationBtn.onclick = function() {
-          sessionStorage.setItem("validUser", JSON.stringify(currentUser));
-          sessionStorage.setItem("userArr", JSON.stringify(userArr));
-          window.location.href = "notifications.html";
+
+        if (currentUser.notifications == undefined) {
+            console.log("Notifications Not Found");
+        } else if (currentUser.notifications != undefined) {
+            if (readNotificationsBool){
+                if (currentUser.notifications.length > 0 && currentUser.readNotifications.length != currentUser.notifications.length) {
+                    notificationBtn.src = "img/bellNotificationOn.png";
+                    notificationBtn.onclick = function() {
+                        navigation(4);
+                    }
+                } else {
+                    notificationBtn.src = "img/bellNotificationOff.png";
+                    notificationBtn.onclick = function() {
+                        navigation(4);
+                    }
+                }
+            } else if (currentUser.notifications.length > 0) {
+                notificationBtn.src = "img/bellNotificationOn.png";
+                notificationBtn.onclick = function() {
+                    navigation(4);
+                }
+            }
         }
-      }
+        userArr = JSON.parse(sessionStorage.userArr);
+    } catch (err) {
+        console.log(err.toString());
+        window.location.href = "index.html";
     }
-    userArr = JSON.parse(sessionStorage.userArr);
-  } catch (err) {
-    console.log(err.toString());
-    window.location.href = "index.html";
-  }
 }
 
 
@@ -216,29 +213,27 @@ window.onload = function instantiate() {
   };
 
   //initialize back button
-  backBtn.innerHTML = "Back To Lists";
-  backBtn.onclick = function() {
-    sessionStorage.setItem("validUser", JSON.stringify(currentUser));
-    sessionStorage.setItem("userArr", JSON.stringify(userArr));
-    if(moderationSet == 1){
-      window.location.href = "moderation.html";
-    } else {
-      window.location.href = "lists.html";
-    }
-  };
+    backBtn.innerHTML = "Back To Lists";
+    backBtn.onclick = function() {
+        if(moderationSet == 1){
+            navigation(5);
+        } else {
+            navigation(1);
+        }
+    };
 
-  loadingTimer = setInterval(function(){
-    loadingTimerInt = loadingTimerInt + 1000;
-    if(loadingTimerInt >= 2000){
-      var testGift = document.getElementById("TestGift");
-      if (testGift == undefined){
-        //console.log("TestGift Missing. Loading Properly.");
-      } else {
-        testGift.innerHTML = "Loading... Please Wait...";
-      }
-      clearInterval(loadingTimer);
-    }
-  }, 1000);
+    loadingTimer = setInterval(function(){
+        loadingTimerInt = loadingTimerInt + 1000;
+        if(loadingTimerInt >= 2000){
+            var testGift = document.getElementById("TestGift");
+            if (testGift == undefined){
+                //console.log("TestGift Missing. Loading Properly.");
+            } else if (!giftListEmptyBool) {
+                testGift.innerHTML = "Loading... Please Wait...";
+            }
+            clearInterval(loadingTimer);
+        }
+    }, 1000);
 
   databaseQuery();
 
@@ -294,7 +289,11 @@ window.onload = function instantiate() {
     }
 
 
-    modal.style.display = "none";
+      try {
+          modal.style.display = "none";
+      } catch (err) {
+          //console.log("Basic Modal Not Open");
+      }
     noteInfoField.innerHTML = "You have been inactive for 5 minutes, you will be logged out in " + timeMins
       + ":" + timeSecs + "!";
     noteTitleField.innerHTML = "Are You Still There?";
