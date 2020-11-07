@@ -313,7 +313,7 @@ window.onload = function instantiate() {
 
     //This function edits the notification modal to welcome the user back after being inactive
   function ohThereYouAre(){
-    noteInfoField.innerHTML = "Welcome back, " + user.name;
+    noteInfoField.innerHTML = "Welcome back, " + currentUser.name;
     noteTitleField.innerHTML = "Oh, There You Are!";
 
     var nowJ = 0;
