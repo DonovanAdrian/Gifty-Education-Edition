@@ -13,6 +13,7 @@ var giftArr = [];                       //An array that stores all the user's gi
 var giftPresent = true;                 //A global boolean used to change the add/update button's text
 var privateListBool = true;             //A global boolean used to tell whether this gift is a private gift or not
 var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
+var invalidURLBool = false;             //A global boolean used to verify the validity of a url string
 
 var giftUID = -1;                       //An integer that stands for the index of the current gift
 var logoutReminder = 300;               //The maximum limit to remind the user about being inactive
@@ -41,37 +42,46 @@ var noteSpan;                           //Stores the "X" object on the "Notifica
 //This function will load an authenticated user's data from memory and updates various objects on the page based upon
 //the data that the user's object contains.
 function getCurrentUser(){
-  try {
-    user = JSON.parse(sessionStorage.validUser);
-    privateList = JSON.parse(sessionStorage.privateList);
-    if(privateList == null || privateList == undefined || privateList == "") {
-      privateListBool = false;
-      console.log("User: " + user.userName + " logged in");
-    } else {
-      privateUser = JSON.parse(sessionStorage.validPrivateUser);
-      document.getElementById('homeNote').className = "";
-      document.getElementById('listNote').className = "active";
-      console.log("User: " + privateUser.userName + " logged in");
-      console.log("Friend: " + user.userName + " logged in");
+    try {
+        user = JSON.parse(sessionStorage.validUser);
+        privateList = JSON.parse(sessionStorage.privateList);
+        if(privateList == null || privateList == undefined || privateList == "") {
+            privateListBool = false;
+            console.log("User: " + user.userName + " logged in");
+        } else {
+            privateUser = JSON.parse(sessionStorage.validPrivateUser);
+            document.getElementById('homeNote').className = "";
+            document.getElementById('listNote').className = "active";
+            console.log("User: " + privateUser.userName + " logged in");
+            console.log("Friend: " + user.userName + " logged in");
+        }
+        giftStorage = JSON.parse(sessionStorage.giftStorage);
+        if (giftStorage == null || giftStorage == undefined || giftStorage == "") {
+            giftPresent = false;
+        } else {
+            console.log("Gift: " + giftStorage + " found");
+        }
+        if (!privateListBool)
+            if (user.invites == undefined) {
+                console.log("Invites Not Found");
+            } else if (user.invites != undefined) {
+                if (user.invites.length > 0) {
+                    inviteNote.style.background = "#ff3923";
+                }
+            }
+            else
+            if (currentUser.invites == undefined) {
+                console.log("Invites Not Found");
+            } else if (currentUser.invites != undefined) {
+                if (currentUser.invites.length > 0) {
+                    inviteNote.style.background = "#ff3923";
+                }
+            }
+        userArr = JSON.parse(sessionStorage.userArr);
+    } catch (err) {
+        console.log(err.toString());
+        window.location.href = "index.html";
     }
-    giftStorage = JSON.parse(sessionStorage.giftStorage);
-    if (giftStorage == null || giftStorage == undefined || giftStorage == "") {
-      giftPresent = false;
-    } else {
-      console.log("Gift: " + giftStorage + " found");
-    }
-    if (user.invites == undefined) {
-      console.log("Invites Not Found");
-    } else if (user.invites != undefined) {
-      if (user.invites.length > 0) {
-        inviteNote.style.background = "#ff3923";
-      }
-    }
-    userArr = JSON.parse(sessionStorage.userArr);
-  } catch (err) {
-    console.log(err.toString());
-    window.location.href = "index.html";
-  }
 }
 
 //This function instantiates all necessary data after the webpage has finished loading. The config data that was stored
@@ -221,9 +231,12 @@ window.onload = function instantiate() {
 
 
     //This function edits the notification modal to welcome the user back after being inactive
-  function ohThereYouAre(){
-    noteInfoField.innerHTML = "Welcome back, " + user.name;
-    noteTitleField.innerHTML = "Oh, There You Are!";
+    function ohThereYouAre(){
+        if (!privateListBool)
+            noteInfoField.innerHTML = "Welcome back, " + user.name;
+        else
+            noteInfoField.innerHTML = "Welcome back, " + privateUser.name;
+        noteTitleField.innerHTML = "Oh, There You Are!";
 
     var nowJ = 0;
     var j = setInterval(function(){
@@ -340,90 +353,91 @@ window.onload = function instantiate() {
 
 
   //This function updates the gift to the database, whether they are in a private list or not
-  function updateGiftToDB(){
-    if(titleField.value === "")
-      alert("It looks like you left the title blank. Make sure you add a title so other people know what to get " +
-        "you!");
-    else {
-      if(giftUID != -1) {
-        if (!privateListBool) {
-          firebase.database().ref("users/" + user.uid + "/giftList/" + giftUID).update({
-            title: titleField.value,
-            link: linkField.value,
-            where: whereField.value,
-            received: currentGift.received,
-            uid: giftStorage,
-            buyer: currentGift.buyer,
-            description: descField.value,
-            creationDate: ""
-          });
-          if (currentGift.creationDate != undefined) {
-            if (currentGift.creationDate != "") {
-              firebase.database().ref("users/" + user.uid + "/giftList/" + giftUID).update({
-                creationDate: currentGift.creationDate
-              });
-            }
-          }
+    function updateGiftToDB(){
+        var newURL = verifyURLString(linkField.value);
 
-          sessionStorage.setItem("validUser", JSON.stringify(user));
-          sessionStorage.setItem("userArr", JSON.stringify(userArr));
-          window.location.href = "home.html";
-        } else {
-          firebase.database().ref("users/" + privateList.uid + "/privateList/" + giftUID).update({
-            title: titleField.value,
-            link: linkField.value,
-            where: whereField.value,
-            received: currentGift.received,
-            uid: giftStorage,
-            buyer: currentGift.buyer,
-            description: descField.value
-          });
-          if (currentGift.creationDate != undefined) {
-            if (currentGift.creationDate != "") {
-              firebase.database().ref("users/" + privateList.uid + "/privateList/" + giftUID).update({
-                creationDate: currentGift.creationDate
-              });
-            }
-          }
-          if (currentGift.creator != undefined) {
-            if (currentGift.creator != "") {
-              firebase.database().ref("users/" + privateList.uid + "/privateList/" + giftUID).update({
-                creator: currentGift.creator
-              });
-            }
-          }
+        if(titleField.value === "")
+            alert("It looks like you left the title blank. Make sure you add a title so other people know what to get " +
+                "you!");
+        else if (invalidURLBool)
+            alert("It looks like you entered an invalid URL, please enter a valid URL or leave the field blank.");
+        else {
+            if(giftUID != -1) {
+                if (!privateListBool) {
+                    firebase.database().ref("users/" + user.uid + "/giftList/" + giftUID).update({
+                        title: titleField.value,
+                        link: newURL,
+                        where: whereField.value,
+                        received: currentGift.received,
+                        uid: giftStorage,
+                        buyer: currentGift.buyer,
+                        description: descField.value,
+                        creationDate: ""
+                    });
+                    if (currentGift.creationDate != undefined) {
+                        if (currentGift.creationDate != "") {
+                            firebase.database().ref("users/" + user.uid + "/giftList/" + giftUID).update({
+                                creationDate: currentGift.creationDate
+                            });
+                        }
+                    }
 
-          sessionStorage.setItem("validGiftUser", JSON.stringify(user));
-          sessionStorage.setItem("validUser", JSON.stringify(privateUser));
-          sessionStorage.setItem("userArr", JSON.stringify(userArr));
-          window.location.href = "privateFriendList.html";
-        }
+                    navigation(0);
+                } else {
+                    firebase.database().ref("users/" + privateList.uid + "/privateList/" + giftUID).update({
+                        title: titleField.value,
+                        link: newURL,
+                        where: whereField.value,
+                        received: currentGift.received,
+                        uid: giftStorage,
+                        buyer: currentGift.buyer,
+                        description: descField.value
+                    });
+                    if (currentGift.creationDate != undefined) {
+                        if (currentGift.creationDate != "") {
+                            firebase.database().ref("users/" + privateList.uid + "/privateList/" + giftUID).update({
+                                creationDate: currentGift.creationDate
+                            });
+                        }
+                    }
+                    if (currentGift.creator != undefined) {
+                        if (currentGift.creator != "") {
+                            firebase.database().ref("users/" + privateList.uid + "/privateList/" + giftUID).update({
+                                creator: currentGift.creator
+                            });
+                        }
+                    }
 
-        if(currentGift.buyer != ""){
-          var userFound = findUserNameItemInArr(currentGift.buyer, userArr);
-          if(userFound != -1){
-            if(privateListBool){
-              if (userArr[userFound].uid != privateUser.uid) {
-                addNotificationToDB(userArr[userFound], currentGift.title);
-              }
+                    sessionStorage.setItem("validGiftUser", JSON.stringify(user));
+                    navigation(4);
+                }
+
+                if(currentGift.buyer != ""){
+                    var userFound = findUserNameItemInArr(currentGift.buyer, userArr);
+                    if(userFound != -1){
+                        if(privateListBool){
+                            if (userArr[userFound].uid != privateUser.uid) {
+                                addNotificationToDB(userArr[userFound], currentGift.title);
+                            }
+                        } else {
+                            console.log(user.uid);
+                            if (userArr[userFound].uid != user.uid) {
+                                addNotificationToDB(userArr[userFound], currentGift.title);
+                            }
+                        }
+                    } else {
+                        console.log("User not found");
+                    }
+                } else {
+                    console.log("No buyer, no notification needed");
+                }
             } else {
-              console.log(user.uid);
-              if (userArr[userFound].uid != user.uid) {
-                addNotificationToDB(userArr[userFound], currentGift.title);
-              }
+                alert("There was an error updating the gift, please try again!");
+                console.log(giftUID);
             }
-          } else {
-            console.log("User not found");
-          }
-        } else {
-          console.log("No buyer, no notification needed");
         }
-      } else {
-        alert("There was an error updating the gift, please try again!");
-        console.log(giftUID);
-      }
+        invalidURLBool = false;
     }
-  }
 
 
     //This function is called from the deleteGiftElement() function and helps find the index of a user's User Name to
@@ -477,59 +491,216 @@ window.onload = function instantiate() {
 
 
   //This function adds the gift to a public or a private list in the database
-  function addGiftToDB(){
-    var uid = giftArr.length;
-    var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth()+1;
-    var yy = today.getFullYear();
-    var creationDate = mm + "/" + dd + "/" + yy;
+    function addGiftToDB(){
+        var uid = giftArr.length;
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1;
+        var yy = today.getFullYear();
+        var creationDate = mm + "/" + dd + "/" + yy;
+        var newURL = verifyURLString(linkField.value);
 
-    if(titleField.value === "")
-      alert("It looks like you left the title blank. Make sure you add a title so other people know what to get " +
-        "you!");
-    else {
-      if(!privateListBool) {
-        var newUid = firebase.database().ref("users/" + user.uid + "/giftList/" + uid).push();
-        newUid = newUid.toString();
-        newUid = newUid.substr(77, 96);
-        firebase.database().ref("users/" + user.uid + "/giftList/" + uid).set({
-          title: titleField.value,
-          link: linkField.value,
-          where: whereField.value,
-          received: 0,
-          uid: newUid,
-          buyer: "",
-          description: descField.value,
-          creationDate: creationDate
-        });
+        if(titleField.value === "")
+            alert("It looks like you left the title blank. Make sure you add a title so other people know what to get " +
+                "you!");
+        else if (invalidURLBool)
+            alert("It looks like you entered an invalid URL, please enter a valid URL or leave the field blank.");
+        else {
+            if(!privateListBool) {
+                var newUid = firebase.database().ref("users/" + user.uid + "/giftList/" + uid).push();
+                newUid = newUid.toString();
+                newUid = newUid.substr(77, 96);
+                firebase.database().ref("users/" + user.uid + "/giftList/" + uid).set({
+                    title: titleField.value,
+                    link: newURL,
+                    where: whereField.value,
+                    received: 0,
+                    uid: newUid,
+                    buyer: "",
+                    description: descField.value,
+                    creationDate: creationDate
+                });
 
-        sessionStorage.setItem("validUser", JSON.stringify(user));
-        sessionStorage.setItem("userArr", JSON.stringify(userArr));
-        window.location.href = "home.html"
-      } else {
+                navigation(0);
+            } else {
 
-        var newUid = firebase.database().ref("users/" + user.uid + "/privateList/" + uid).push();
-        newUid = newUid.toString();
-        newUid = newUid.substr(80, 96);
-        firebase.database().ref("users/" + user.uid + "/privateList/" + uid).set({
-          title: titleField.value,
-          link: linkField.value,
-          where: whereField.value,
-          received: 0,
-          uid: newUid,
-          buyer: "",
-          description: descField.value,
-          creationDate: creationDate,
-          creator: privateUser.userName
-        });
-        sessionStorage.setItem("validGiftUser", JSON.stringify(user));
-        sessionStorage.setItem("validUser", JSON.stringify(privateUser));
-        sessionStorage.setItem("userArr", JSON.stringify(userArr));
-        window.location.href = "privateFriendList.html";
-      }
+                var newUid = firebase.database().ref("users/" + user.uid + "/privateList/" + uid).push();
+                newUid = newUid.toString();
+                newUid = newUid.substr(80, 96);
+                firebase.database().ref("users/" + user.uid + "/privateList/" + uid).set({
+                    title: titleField.value,
+                    link: newURL,
+                    where: whereField.value,
+                    received: 0,
+                    uid: newUid,
+                    buyer: "",
+                    description: descField.value,
+                    creationDate: creationDate,
+                    creator: privateUser.userName
+                });
+                sessionStorage.setItem("validGiftUser", JSON.stringify(user));
+                navigation(4);
+            }
+        }
+        invalidURLBool = false;
     }
-  }
+
+    //This function verifies the validity of a url that was input by the user, and will return a proper url if found
+    function verifyURLString(url){
+        var urlBuilder = "";
+        var tempURL = "";
+        var failedURLs = [];
+        var isChar = false;
+        var preDot = false;
+        var dotBool = false;
+        var dotDuplicate = false;
+        var postDot = false;
+        var validURLBool = false;
+        var validURLOverride = true;
+        var invalidChar = false;
+        var dotEnder = false;
+
+        for(var i = 0; i < url.length; i++){
+            if (url.charAt(i) == " ") {
+                failedURLs.push(urlBuilder);
+                urlBuilder = "";
+            } else
+                urlBuilder += url.charAt(i);
+        }
+        failedURLs.push(urlBuilder);
+
+        for (var a = 0; a < failedURLs.length; a++) {
+            for (var b = 0; b < failedURLs[a].length; b++) {
+                if (isAlphNum(failedURLs[a].charAt(b))) {
+                    isChar = true;
+                    preDot = true;
+                    dotDuplicate = false;
+                    dotEnder = false;
+                }
+                if (isAlphNum(failedURLs[a].charAt(b)) && dotBool) {
+                    postDot = true;
+                    dotDuplicate = false;
+                    dotEnder = false;
+                }
+                if (failedURLs[a].charAt(b) == ".") {
+                    dotBool = true;
+                    dotEnder = true;
+                    if (!dotDuplicate)
+                        dotDuplicate = true;
+                    else
+                        validURLOverride = false;
+                }
+                if (isInvalid(failedURLs[a].charAt(b))) {
+                    validURLOverride = false;
+                    invalidChar = true;
+                }
+                if (postDot)
+                    validURLBool = true;
+            }
+
+            if (!dotEnder && validURLBool && validURLOverride) {
+                tempURL = failedURLs[a];
+            }
+
+            preDot = false;
+            dotBool = false;
+            dotDuplicate = false;
+            postDot = false;
+            validURLBool = false;
+            validURLOverride = true;
+            dotEnder = false;
+        }
+
+
+        if (tempURL == "" && isChar)
+            invalidURLBool = true;
+        else if (invalidChar)
+            invalidURLBool = true;
+        else
+            console.log("Valid URL! " + tempURL);
+
+        return tempURL;
+    }
+
+    //This function will verify that a character is indeed alphanumeric
+    function isAlphNum(rChar){
+        rChar = rChar.toUpperCase();
+        switch (rChar){
+            case "A":
+            case "B":
+            case "C":
+            case "D":
+            case "E":
+            case "F":
+            case "G":
+            case "H":
+            case "I":
+            case "J":
+            case "K":
+            case "L":
+            case "M":
+            case "N":
+            case "O":
+            case "P":
+            case "Q":
+            case "R":
+            case "S":
+            case "T":
+            case "U":
+            case "V":
+            case "W":
+            case "X":
+            case "Y":
+            case "Z":
+            case "0":
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            case "9":
+            case "-":
+            case "_":
+            case "~":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    //This function checks a list of predetermined invalid characters in a url string
+    function isInvalid(rChar){
+        switch(rChar){
+            case "!":
+            case "@":
+            case "#":
+            case "$":
+            case "^":
+            case "*":
+            case "(":
+            case ")":
+            case " ":
+            case "+":
+            case "\"":
+            case "\'":
+            case "{":
+            case "}":
+            case "[":
+            case "]":
+            case "\\":
+            case "|":
+            case ";":
+            case ",":
+            case "<":
+            case ">":
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 
@@ -542,25 +713,28 @@ function signOut(){
 
 //This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
-  if (!privateListBool)
-    sessionStorage.setItem("validUser", JSON.stringify(user));
-  else
-    sessionStorage.setItem("validUser", JSON.stringify(privateUser));
-  sessionStorage.setItem("userArr", JSON.stringify(userArr));
-  switch(nav){
-    case 0:
-      window.location.href = "home.html";
-      break;
-    case 1:
-      window.location.href = "lists.html";
-      break;
-    case 2:
-      window.location.href = "invites.html";
-      break;
-    case 3:
-      window.location.href = "settings.html";
-      break;
-    default:
-      break;
-  }
+    if (!privateListBool)
+        sessionStorage.setItem("validUser", JSON.stringify(user));
+    else
+        sessionStorage.setItem("validUser", JSON.stringify(privateUser));
+    sessionStorage.setItem("userArr", JSON.stringify(userArr));
+    switch(nav){
+        case 0:
+            window.location.href = "home.html";
+            break;
+        case 1:
+            window.location.href = "lists.html";
+            break;
+        case 2:
+            window.location.href = "invites.html";
+            break;
+        case 3:
+            window.location.href = "settings.html";
+            break;
+        case 4:
+            window.location.href = "privateFriendList.html";
+            break;
+        default:
+            break;
+    }
 }
