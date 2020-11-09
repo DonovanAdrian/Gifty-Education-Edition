@@ -14,6 +14,7 @@ var listeningFirebaseRefs = [];         //An array that stores locations in the 
 
 var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
 var readNotificationsBool = false;      //A boolean used to dictate whether all notifications have been read
+var inviteListEmptyBool = false;        //A global boolean used to dictate whether or not the invite list is empty
 
 var inviteCount = 0;                    //An integer used to keep track of the number of invites loaded on the page
 var onlineInt = 0;                      //An integer used to tell if the authenticated user is online
@@ -48,6 +49,7 @@ function getCurrentUser(){
         if (user.invites == undefined) {
             console.log("Invites Not Found");
             deployInviteListEmptyNotification();
+            inviteListEmptyBool = true;
         } else if (user.invites != undefined) {
             if (user.invites.length > 0) {
                 inviteNote.style.background = "#ff3923";
@@ -182,8 +184,8 @@ window.onload = function instantiate() {
       var testGift = document.getElementById("TestGift");
       if (testGift == undefined){
         //console.log("TestGift Missing. Loading Properly.");
-      } else {
-        testGift.innerHTML = "Loading... Please Wait...";
+      } else if (!inviteListEmptyBool) {
+          testGift.innerHTML = "Loading... Please Wait...";
       }
       clearInterval(loadingTimer);
     }
@@ -620,6 +622,9 @@ window.onload = function instantiate() {
       firebase.database().ref("users/" + user.uid).update({
         invites: inviteArr
       });
+
+      if(inviteArr.length == 0)
+        navigation(2);
     }
   }
 };
