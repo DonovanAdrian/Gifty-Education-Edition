@@ -876,33 +876,34 @@ window.onload = function instantiate() {
     console.log("Added Notification To DB");
   }
 
-    function updateMaintenanceLog(locationData, detailsData) {
-        var today = new Date();
-        var UTChh = today.getUTCHours();
-        var UTCmm = today.getUTCMinutes();
-        var UTCss = today.getUTCSeconds();
-        var dd = today.getUTCDate();
-        var mm = today.getMonth()+1;
-        var yy = today.getFullYear();
-        var timeData = mm + "/" + dd + "/" + yy + " " + UTChh + ":" + UTCmm + ":" + UTCss;
-        var newUid = firebase.database().ref("maintenance").push();
-        newUid = newUid.toString();
-        newUid = newUid.substr(51, 70);
-
-        firebase.database().ref("maintenance/" + newUid).set({
-            uid: newUid,
-            location: locationData,
-            details: detailsData,
-            time: timeData
-        });
-    }
-
   //This function helps generate the notification data for each notification
   function generateNotificationString(giftOwner, giftTitle, pageName){
     console.log("Generating Notification");
     return (giftOwner + "," + giftTitle + "," + pageName);
   }
 };
+
+//This function adds specific data to a maintenance log stored in the DB
+function updateMaintenanceLog(locationData, detailsData) {
+    var today = new Date();
+    var UTChh = today.getUTCHours();
+    var UTCmm = today.getUTCMinutes();
+    var UTCss = today.getUTCSeconds();
+    var dd = today.getUTCDate();
+    var mm = today.getMonth()+1;
+    var yy = today.getFullYear();
+    var timeData = mm + "/" + dd + "/" + yy + " " + UTChh + ":" + UTCmm + ":" + UTCss;
+    var newUid = firebase.database().ref("maintenance").push();
+    newUid = newUid.toString();
+    newUid = newUid.substr(51, 70);
+
+    firebase.database().ref("maintenance/" + newUid).set({
+        uid: newUid,
+        location: locationData,
+        details: detailsData,
+        time: timeData
+    });
+}
 
 
 //This function deploys a notification that shows that the user's gift list is empty
