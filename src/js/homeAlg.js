@@ -19,6 +19,7 @@ var friendsValidBool = false;           //A boolean used for error checking in a
 var readNotificationsBool = false;      //A boolean used to dictate whether all notifications have been read
 var updateUserBool = false;             //A boolean used to tell whether the user should be updated to DB in error checking
 var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
+var giftListEmptyBool = false;          //A global boolean that tells whether the giftList is empty
 
 var giftCounter = 0;                    //An integer used to keep track of the number of gifts loaded on the page
 var onlineInt = 0;                      //An integer used to tell if the authenticated user is online
@@ -52,69 +53,65 @@ var notificationBtn;                    //Stores the "Notification" object on th
 //This function will load an authenticated user's data from memory and updates various objects on the page based upon
 //the data that the user's object contains.
 function getCurrentUser(){
-  try {
-    user = JSON.parse(sessionStorage.validUser);
-    console.log("User: " + user.userName + " logged in");
-    if (user.giftList == undefined) {
-      deployGiftListEmptyNotification();
-    } else if (user.giftList.length == 0) {
-      deployGiftListEmptyNotification();
-    }
-    if (user.invites == undefined) {
-      console.log("Invites Not Found");
-    } else if (user.invites != undefined) {
-      if (user.invites.length > 0) {
-        invitesValidBool = true;
-      }
-    }
+    try {
+        user = JSON.parse(sessionStorage.validUser);
+        console.log("User: " + user.userName + " logged in");
+        if (user.giftList == undefined) {
+            deployGiftListEmptyNotification();
+            giftListEmptyBool = true;
+        } else if (user.giftList.length == 0) {
+            deployGiftListEmptyNotification();
+            giftListEmptyBool = true;
+        }
+        if (user.invites == undefined) {
+            console.log("Invites Not Found");
+        } else if (user.invites != undefined) {
+            if (user.invites.length > 0) {
+                invitesValidBool = true;
+            }
+        }
 
-    if (user.friends == undefined) {
-      console.log("Friends Not Found");
-    } else if (user.friends != undefined) {
-      if (user.friends.length > 0) {
-        friendsValidBool = true;
-      }
-    }
+        if (user.friends == undefined) {
+            console.log("Friends Not Found");
+        } else if (user.friends != undefined) {
+            if (user.friends.length > 0) {
+                friendsValidBool = true;
+            }
+        }
 
-    if (user.readNotifications == undefined) {
-      console.log("Read Notifications Not Found");
-    } else {
-      readNotificationsBool = true;
-    }
-
-    if (user.notifications == undefined) {
-      console.log("Notifications Not Found");
-    } else if (user.notifications != undefined) {
-      if (readNotificationsBool){
-        if (user.notifications.length > 0 && user.readNotifications.length != user.notifications.length) {
-          notificationBtn.src = "img/bellNotificationOn.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(user));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+        if (user.readNotifications == undefined) {
+            console.log("Read Notifications Not Found");
         } else {
-          notificationBtn.src = "img/bellNotificationOff.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(user));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+            readNotificationsBool = true;
         }
-      } else if (user.notifications.length > 0) {
-        notificationBtn.src = "img/bellNotificationOn.png";
-        notificationBtn.onclick = function() {
-          sessionStorage.setItem("validUser", JSON.stringify(user));
-          sessionStorage.setItem("userArr", JSON.stringify(userArr));
-          window.location.href = "notifications.html";
+
+        if (user.notifications == undefined) {
+            console.log("Notifications Not Found");
+        } else if (user.notifications != undefined) {
+            if (readNotificationsBool){
+                if (user.notifications.length > 0 && user.readNotifications.length != user.notifications.length) {
+                    notificationBtn.src = "img/bellNotificationOn.png";
+                    notificationBtn.onclick = function() {
+                        navigation(4);
+                    }
+                } else {
+                    notificationBtn.src = "img/bellNotificationOff.png";
+                    notificationBtn.onclick = function() {
+                        navigation(4);
+                    }
+                }
+            } else if (user.notifications.length > 0) {
+                notificationBtn.src = "img/bellNotificationOn.png";
+                notificationBtn.onclick = function() {
+                    navigation(4);
+                }
+            }
         }
-      }
+        userArr = JSON.parse(sessionStorage.userArr);
+    } catch (err) {
+        console.log(err.toString());
+        window.location.href = "index.html";
     }
-    userArr = JSON.parse(sessionStorage.userArr);
-  } catch (err) {
-    console.log(err.toString());
-    window.location.href = "index.html";
-  }
 }
 
 
@@ -322,26 +319,22 @@ window.onload = function instantiate() {
   collectUserBoughtGifts();
   boughtGifts.innerHTML = "Bought Gifts";
   boughtGifts.onclick = function(){
-    if(userBoughtGifts.length == 0){
-      alert("Buy Some Gifts From Some Users First!");
-    } else {
-      sessionStorage.setItem("boughtGifts", JSON.stringify(userBoughtGifts));
-      sessionStorage.setItem("boughtGiftsUsers", JSON.stringify(userBoughtGiftsUsers));
-      sessionStorage.setItem("validUser", JSON.stringify(user));
-      sessionStorage.setItem("userArr", JSON.stringify(userArr));
-      window.location.href = "boughtGifts.html";
-    }
+      if(userBoughtGifts.length == 0){
+          alert("Buy Some Gifts From Some Users First!");
+      } else {
+          sessionStorage.setItem("boughtGifts", JSON.stringify(userBoughtGifts));
+          sessionStorage.setItem("boughtGiftsUsers", JSON.stringify(userBoughtGiftsUsers));
+          navigation(5);
+      }
   };
 
   addBtn.innerHTML = "Add Gift";
   addBtn.onclick = function() {
-    giftStorage = "";
-    privateList = "";
-    sessionStorage.setItem("privateList", JSON.stringify(privateList));
-    sessionStorage.setItem("validUser", JSON.stringify(user));
-    sessionStorage.setItem("userArr", JSON.stringify(userArr));
-    sessionStorage.setItem("giftStorage", JSON.stringify(giftStorage));
-    window.location.href = "giftAddUpdate.html";
+      giftStorage = "";
+      privateList = "";
+      sessionStorage.setItem("privateList", JSON.stringify(privateList));
+      sessionStorage.setItem("giftStorage", JSON.stringify(giftStorage));
+      navigation(5);
   };
 
   loadingTimer = setInterval(function(){
@@ -364,61 +357,66 @@ window.onload = function instantiate() {
 
     //This function controls how long the user has been inactive for and reminds them that they have been inactive
     //after a certain amount of time. If the user is inactive for too long, they will be logged out
-  function loginTimer(){
-    var loginNum = 0;
-    console.log("Login Timer Started");
-    setInterval(function(){ //900 15 mins, 600 10 mins
-      document.onmousemove = resetTimer;
-      document.onkeypress = resetTimer;
-      document.onload = resetTimer;
-      document.onmousemove = resetTimer;
-      document.onmousedown = resetTimer; // touchscreen presses
-      document.ontouchstart = resetTimer;
-      document.onclick = resetTimer;     // touchpad clicks
-      document.onscroll = resetTimer;    // scrolling with arrow keys
-      document.onkeypress = resetTimer;
-      loginNum = loginNum + 1;
-      if (loginNum >= logoutLimit){//default 900
-        console.log("User Timed Out");
-        signOut();
-      } else if (loginNum > logoutReminder){//default 600
-        //console.log("User Inactive");
-        areYouStillThereNote(loginNum);
-        areYouStillThereBool = true;
-      }
-      function resetTimer() {
-        if (areYouStillThereBool) {
-          ohThereYouAre();
-        }
-        loginNum = 0;
-      }
-    }, 1000);
-  }
+    function loginTimer(){
+        var loginNum = 0;
+        console.log("Login Timer Started");
+        setInterval(function(){ //900 15 mins, 600 10 mins
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+            document.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onmousedown = resetTimer; // touchscreen presses
+            document.ontouchstart = resetTimer;
+            document.onclick = resetTimer;     // touchpad clicks
+            document.onscroll = resetTimer;    // scrolling with arrow keys
+            document.onkeypress = resetTimer;
+            loginNum = loginNum + 1;
+            if (loginNum >= logoutLimit){//default 900
+                console.log("User Timed Out");
+                signOut();
+            } else if (loginNum > logoutReminder){//default 600
+                //console.log("User Inactive");
+                areYouStillThereNote(loginNum);
+                areYouStillThereBool = true;
+            }
+            function resetTimer() {
+                if (areYouStillThereBool) {
+                    //console.log("User Active");
+                    ohThereYouAre();
+                }
+                loginNum = 0;
+            }
+        }, 1000);
+    }
 
 
     //This function closes any open modals and opens the notification modal to tell the user that they have
     //been inactive for too long.
-  function areYouStillThereNote(timeElapsed){
-    var timeRemaining = logoutLimit - timeElapsed;
-    var timeMins = Math.floor(timeRemaining/60);
-    var timeSecs = timeRemaining%60;
+    function areYouStillThereNote(timeElapsed){
+        var timeRemaining = logoutLimit - timeElapsed;
+        var timeMins = Math.floor(timeRemaining/60);
+        var timeSecs = timeRemaining%60;
 
-    if (timeSecs < 10) {
-      timeSecs = ("0" + timeSecs).slice(-2);
+        if (timeSecs < 10) {
+            timeSecs = ("0" + timeSecs).slice(-2);
+        }
+
+        try {
+            modal.style.display = "none";
+        } catch (err) {
+            //console.log("Basic Modal Not Open");
+        }
+        noteInfoField.innerHTML = "You have been inactive for 5 minutes, you will be logged out in " + timeMins
+            + ":" + timeSecs + "!";
+        noteTitleField.innerHTML = "Are You Still There?";
+        noteModal.style.display = "block";
+
+        //close on close
+        noteSpan.onclick = function() {
+            noteModal.style.display = "none";
+            areYouStillThereBool = false;
+        };
     }
-
-    modal.style.display = "none";
-    noteInfoField.innerHTML = "You have been inactive for 5 minutes, you will be logged out in " + timeMins
-      + ":" + timeSecs + "!";
-    noteTitleField.innerHTML = "Are You Still There?";
-    noteModal.style.display = "block";
-
-    //close on close
-    noteSpan.onclick = function() {
-      noteModal.style.display = "none";
-      areYouStillThereBool = false;
-    };
-  }
 
 
     //This function edits the notification modal to welcome the user back after being inactive
@@ -449,118 +447,116 @@ window.onload = function instantiate() {
 //This is the function where all the data is accessed and put into arrays. Those arrays are also updated and removed
 //as new data is received. New data is checked through the "listeningFirebaseRefs" array, as this is where database
 //locations are stored and checked on regularly.
-  function databaseQuery() {
+    function databaseQuery() {
 
-    userBase = firebase.database().ref("users/");
-    userGifts = firebase.database().ref("users/" + user.uid + "/giftList");
-    userInvites = firebase.database().ref("users/" + user.uid + "/invites");
+        userBase = firebase.database().ref("users/");
+        userGifts = firebase.database().ref("users/" + user.uid + "/giftList");
+        userInvites = firebase.database().ref("users/" + user.uid + "/invites");
 
-    var fetchData = function (postRef) {
-      postRef.on('child_added', function (data) {
-        onlineInt = 1;
+        var fetchData = function (postRef) {
+            postRef.on('child_added', function (data) {
+                onlineInt = 1;
 
-        var i = findUIDItemInArr(data.key, userArr);
-        if(userArr[i] != data.val() && i != -1){
-          //console.log("Adding " + userArr[i].userName + " to most updated version: " + data.val().userName);
-          userArr[i] = data.val();
-        }
+                var i = findUIDItemInArr(data.key, userArr);
+                if(userArr[i] != data.val() && i != -1){
+                    //console.log("Adding " + userArr[i].userName + " to most updated version: " + data.val().userName);
+                    userArr[i] = data.val();
+                }
 
-        if(data.key == user.uid){
-          user = data.val();
-          if (data.val().notifications == undefined) {
-            notificationBtn.src = "img/bellNotificationOff.png";
-            notificationBtn.onclick = function () {}
-          } else if (data.val().readNotifications == undefined){
-            //console.log("No Read Notifications");
-          } else if (data.val().readNotifications.length == data.val().notifications.length) {
-            notificationBtn.src = "img/bellNotificationOff.png";
-            notificationBtn.onclick = function() {
-              sessionStorage.setItem("validUser", JSON.stringify(user));
-              sessionStorage.setItem("userArr", JSON.stringify(userArr));
-              window.location.href = "notifications.html";
-            }
-          }
-          console.log("User Updated: 1");
-        }
-      });
+                if(data.key == user.uid){
+                    user = data.val();
+                    if (data.val().notifications == undefined) {
+                        notificationBtn.src = "img/bellNotificationOff.png";
+                        notificationBtn.onclick = function () {}
+                    } else if (data.val().readNotifications == undefined){
+                        //console.log("No Read Notifications");
+                    } else if (data.val().readNotifications.length == data.val().notifications.length) {
+                        notificationBtn.src = "img/bellNotificationOff.png";
+                        notificationBtn.onclick = function() {
+                            navigation(4);
+                        }
+                    }
+                    console.log("User Updated: 1");
+                }
+            });
 
-      postRef.on('child_changed', function (data) {
-        console.log("User Updated: " + data.val().userName);
-        var i = findUIDItemInArr(data.key, userArr);
-        if(userArr[i] != data.val() && i != -1){
-          console.log("Updating " + userArr[i].userName + " to most updated version: " + data.val().userName);
-          userArr[i] = data.val();
-        }
+            postRef.on('child_changed', function (data) {
+                console.log("User Updated: " + data.val().userName);
+                var i = findUIDItemInArr(data.key, userArr);
+                if(userArr[i] != data.val() && i != -1){
+                    console.log("Updating " + userArr[i].userName + " to most updated version: " + data.val().userName);
+                    userArr[i] = data.val();
+                }
 
-        if(data.key == user.uid){
-          user = data.val();
-          console.log("User Updated: 2");
-        }
-      });
+                if(data.key == user.uid){
+                    user = data.val();
+                    console.log("User Updated: 2");
+                }
+            });
 
-      postRef.on('child_removed', function (data) {
-        var i = findUIDItemInArr(data.key, userArr);
-        if(userArr[i] != data.val() && i != -1){
-          console.log("Removing " + userArr[i].userName + " / " + data.val().userName);
-          userArr.splice(i, 1);
-        }
-      });
-    };
+            postRef.on('child_removed', function (data) {
+                var i = findUIDItemInArr(data.key, userArr);
+                if(userArr[i] != data.val() && i != -1){
+                    console.log("Removing " + userArr[i].userName + " / " + data.val().userName);
+                    userArr.splice(i, 1);
+                }
+            });
+        };
 
-    var fetchGifts = function (postRef) {
-      postRef.on('child_added', function (data) {
-        giftArr.push(data.val());
+        var fetchGifts = function (postRef) {
+            postRef.on('child_added', function (data) {
+                giftArr.push(data.val());
 
-        createGiftElement(data.val().description, data.val().link, data.val().received, data.val().title,
-          data.key, data.val().where, data.val().uid, data.val().creationDate, data.val().buyer);
-      });
+                createGiftElement(data.val().description, data.val().link, data.val().received, data.val().title,
+                    data.key, data.val().where, data.val().uid, data.val().creationDate, data.val().buyer);
+            });
 
-      postRef.on('child_changed', function(data) {
-        giftArr[data.key] = data.val();
+            postRef.on('child_changed', function(data) {
+                giftArr[data.key] = data.val();
 
-        changeGiftElement(data.val().description, data.val().link, data.val().received, data.val().title,
-          data.key, data.val().where, data.val().uid, data.val().creationDate, data.val().buyer);
-      });
+                changeGiftElement(data.val().description, data.val().link, data.val().received, data.val().title,
+                    data.key, data.val().where, data.val().uid, data.val().creationDate, data.val().buyer);
+            });
 
-      postRef.on('child_removed', function(data) {
-        sessionStorage.setItem("validUser", JSON.stringify(user));
-        location.reload();
-      });
-    };
+            postRef.on('child_removed', function(data) {
+                sessionStorage.setItem("validUser", JSON.stringify(user));
+                location.reload();
+            });
+        };
 
-    var fetchInvites = function (postRef) {
-      postRef.on('child_added', function (data) {
-        inviteArr.push(data.val());
+        var fetchInvites = function (postRef) {
+            postRef.on('child_added', function (data) {
+                inviteArr.push(data.val());
 
-        inviteNote.style.background = "#ff3923";
-      });
+                inviteNote.style.background = "#ff3923";
+            });
 
-      postRef.on('child_changed', function (data) {
-        console.log(inviteArr);
-        inviteArr[data.key] = data.val();
-        console.log(inviteArr);
-      });
+            postRef.on('child_changed', function (data) {
+                console.log(inviteArr);
+                inviteArr[data.key] = data.val();
+                console.log(inviteArr);
+            });
 
-      postRef.on('child_removed', function (data) {
-        console.log(inviteArr);
-        inviteArr.splice(data.key, 1);
-        console.log(inviteArr);
+            postRef.on('child_removed', function (data) {
+                console.log(inviteArr);
+                inviteArr.splice(data.key, 1);
+                console.log(inviteArr);
 
-        if (inviteArr.length == 0) {
-          console.log("Invite List Removed");
-          inviteNote.style.background = "#008222";
-        }
-      });
-    };
+                if (inviteArr.length == 0) {
+                    console.log("Invite List Removed");
+                    inviteNote.style.background = "#008222";
+                }
+            });
+        };
 
-    fetchData(userBase);
-    fetchGifts(userGifts);
-    fetchInvites(userInvites);
+        fetchData(userBase);
+        fetchGifts(userGifts);
+        fetchInvites(userInvites);
 
-    listeningFirebaseRefs.push(userBase);
-    listeningFirebaseRefs.push(userGifts);
-    listeningFirebaseRefs.push(userInvites);
-  }
+        listeningFirebaseRefs.push(userBase);
+        listeningFirebaseRefs.push(userGifts);
+        listeningFirebaseRefs.push(userInvites);
+    }
 
 
     //This function is called from the databaseQuery() function and helps find the index of a user's data to properly
@@ -580,168 +576,171 @@ window.onload = function instantiate() {
   //with the proper gift's details and buttons.
   function createGiftElement(giftDescription, giftLink, giftReceived, giftTitle, giftKey, giftWhere, giftUid, giftDate,
                              giftBuyer){
-    try{
-      document.getElementById("TestGift").remove();
-    } catch (err) {}
+      try{
+          document.getElementById("TestGift").remove();
+      } catch (err) {}
 
-    var liItem = document.createElement("LI");
-    liItem.id = "gift" + giftUid;
-    liItem.className = "gift";
-    liItem.onclick = function (){
-      var spanGift = document.getElementsByClassName("close")[0];
-      var updateBtn = document.getElementById('giftUpdate');
-      var deleteBtn = document.getElementById('giftDelete');
-      var descField = document.getElementById('giftDescription');
-      var titleField = document.getElementById('giftTitle');
-      var whereField = document.getElementById('giftWhere');
-      var linkField = document.getElementById('giftLink');
+      var liItem = document.createElement("LI");
+      liItem.id = "gift" + giftUid;
+      liItem.className = "gift";
+      liItem.onclick = function (){
+          var spanGift = document.getElementsByClassName("close")[0];
+          var updateBtn = document.getElementById('giftUpdate');
+          var deleteBtn = document.getElementById('giftDelete');
+          var descField = document.getElementById('giftDescription');
+          var titleField = document.getElementById('giftTitle');
+          var whereField = document.getElementById('giftWhere');
+          var linkField = document.getElementById('giftLink');
 
-      if (giftLink != ""){
-        linkField.innerHTML = "Click me to go to the webpage!";
-        linkField.onclick = function() {
-          var newGiftLink = "http://";
-          if(giftLink.includes("https://")){
-            giftLink = giftLink.slice(8, giftLink.length);
-          } else if (giftLink.includes("http://")){
-            giftLink = giftLink.slice(7, giftLink.length);
+          if (giftLink != ""){
+              linkField.innerHTML = "Click me to go to the webpage!";
+              linkField.onclick = function() {
+                  var newGiftLink = "http://";
+                  if(giftLink.includes("https://")){
+                      giftLink = giftLink.slice(8, giftLink.length);
+                  } else if (giftLink.includes("http://")){
+                      giftLink = giftLink.slice(7, giftLink.length);
+                  }
+                  newGiftLink += giftLink;
+                  window.open(newGiftLink, "_blank");
+              };
+          } else {
+              linkField.innerHTML = "There was no link provided";
+              linkField.onclick = function() {
+              };
           }
-          newGiftLink += giftLink;
-          window.open(newGiftLink, "_blank");
-        };
-      } else {
-        linkField.innerHTML = "There was no link provided";
-        linkField.onclick = function() {
-        };
-      }
-      if(giftDescription != "") {
-        descField.innerHTML = "Description: " + giftDescription;
-      } else {
-        descField.innerHTML = "There was no description provided";
-      }
-      titleField.innerHTML = giftTitle;
-      if(giftWhere != "") {
-        whereField.innerHTML = "This can be found at: " + giftWhere;
-      } else {
-        whereField.innerHTML = "There was no location provided";
-      }
-      if(giftDate != undefined) {
-        if (giftDate != "") {
-          giftCreationDate.innerHTML = "Created on: " + giftDate;
-        } else {
-          giftCreationDate.innerHTML = "Creation date not available";
-        }
-      } else {
-        giftCreationDate.innerHTML = "Creation date not available";
-      }
-      updateBtn.onclick = function(){
-        updateGiftElement(giftUid);
-      };
-      deleteBtn.onclick = function(){
-        deleteGiftElement(giftKey, giftTitle, giftUid, giftBuyer);
-      };
+          if(giftDescription != "") {
+              descField.innerHTML = "Description: " + giftDescription;
+          } else {
+              descField.innerHTML = "There was no description provided";
+          }
+          titleField.innerHTML = giftTitle;
+          if(giftWhere != "") {
+              whereField.innerHTML = "This can be found at: " + giftWhere;
+          } else {
+              whereField.innerHTML = "There was no location provided";
+          }
+          if(giftDate != undefined) {
+              if (giftDate != "") {
+                  giftCreationDate.innerHTML = "Created on: " + giftDate;
+              } else {
+                  giftCreationDate.innerHTML = "Creation date not available";
+              }
+          } else {
+              giftCreationDate.innerHTML = "Creation date not available";
+          }
+          updateBtn.onclick = function(){
+              updateMaintenanceLog("home", "Attempting to update gift: " + giftTitle + " " + giftKey + " " + user.userName);
+              updateGiftElement(giftUid);
+          };
+          deleteBtn.onclick = function(){
+              updateMaintenanceLog("home", "Attempting to delete gift: " + giftTitle + " " + giftKey + " " + user.userName);
+              deleteGiftElement(giftKey, giftTitle, giftUid, giftBuyer);
+          };
 
-      //show modal
-      modal.style.display = "block";
+          //show modal
+          modal.style.display = "block";
 
-      //close on close
-      spanGift.onclick = function() {
-        modal.style.display = "none";
-      };
+          //close on close
+          spanGift.onclick = function() {
+              modal.style.display = "none";
+          };
 
-      console.log("Sooooo");
-      //close on click
-      window.onclick = function(event) {
-        console.log("Uhhhhh");
-        if (event.target == modal) {
-          console.log("Welp");
-          modal.style.display = "none";
-        }
+          //close on click
+          window.onclick = function(event) {
+              if (event.target == modal) {
+                  modal.style.display = "none";
+              }
+          }
       }
-    }
-    var textNode = document.createTextNode(giftTitle);
-    liItem.appendChild(textNode);
-    giftList.insertBefore(liItem, document.getElementById("giftListContainer").childNodes[0]);
-    clearInterval(offlineTimer);
+      var textNode = document.createTextNode(giftTitle);
+      liItem.appendChild(textNode);
+      giftList.insertBefore(liItem, document.getElementById("giftListContainer").childNodes[0]);
+      clearInterval(offlineTimer);
 
-    giftCounter++;
+      giftCounter++;
+      if (giftCounter > 5)
+          boughtGifts.style.opacity = ".75";
   }
 
 
   //This function updates each gift's element in the page. Upon clicking on a gift's element, a modal will appear
   //with the proper gift's details and buttons.
-  function changeGiftElement(description, link, received, title, key, where, uid, date, buyer) {
-    var editGift = document.getElementById("gift" + uid);
-    editGift.innerHTML = title;
-    editGift.className = "gift";
-    editGift.onclick = function (){
-      var spanGift = document.getElementsByClassName("close")[0];
-      var updateBtn = document.getElementById('giftUpdate');
-      var deleteBtn = document.getElementById('giftDelete');
-      var descField = document.getElementById('giftDescription');
-      var titleField = document.getElementById('giftTitle');
-      var whereField = document.getElementById('giftWhere');
-      var linkField = document.getElementById('giftLink');
+    function changeGiftElement(description, link, received, title, key, where, uid, date, buyer) {
+        var editGift = document.getElementById("gift" + uid);
+        editGift.innerHTML = title;
+        editGift.className = "gift";
+        editGift.onclick = function (){
+            var spanGift = document.getElementsByClassName("close")[0];
+            var updateBtn = document.getElementById('giftUpdate');
+            var deleteBtn = document.getElementById('giftDelete');
+            var descField = document.getElementById('giftDescription');
+            var titleField = document.getElementById('giftTitle');
+            var whereField = document.getElementById('giftWhere');
+            var linkField = document.getElementById('giftLink');
 
-      if (link != ""){
-        linkField.innerHTML = "Click me to go to the webpage!";
-        linkField.onclick = function() {
-          var newGiftLink = "http://";
-          if(link.includes("https://")){
-            link = link.slice(8, link.length);
-          } else if (link.includes("http://")){
-            link = link.slice(7, link.length);
-          }
-          newGiftLink += link;
-          window.open(newGiftLink, "_blank");
+            if (link != ""){
+                linkField.innerHTML = "Click me to go to the webpage!";
+                linkField.onclick = function() {
+                    var newGiftLink = "http://";
+                    if(link.includes("https://")){
+                        link = link.slice(8, link.length);
+                    } else if (link.includes("http://")){
+                        link = link.slice(7, link.length);
+                    }
+                    newGiftLink += link;
+                    window.open(newGiftLink, "_blank");
+                };
+            } else {
+                linkField.innerHTML = "There was no link provided";
+                linkField.onclick = function() {
+                };
+            }
+            if(description != "") {
+                descField.innerHTML = "Description: " + description;
+            } else {
+                descField.innerHTML = "There was no description provided";
+            }
+            titleField.innerHTML = title;
+            if(where != "") {
+                whereField.innerHTML = "This can be found at: " + where;
+            } else {
+                whereField.innerHTML = "There was no location provided";
+            }
+            if(date != undefined) {
+                if (date != "") {
+                    giftCreationDate.innerHTML = "Created on: " + date;
+                } else {
+                    giftCreationDate.innerHTML = "Creation date not available";
+                }
+            } else {
+                giftCreationDate.innerHTML = "Creation date not available";
+            }
+            updateBtn.onclick = function(){
+                updateMaintenanceLog("home", "Attempting to update gift: " + title + " " + key + " " + user.userName);
+                updateGiftElement(uid);
+            };
+            deleteBtn.onclick = function(){
+                updateMaintenanceLog("home", "Attempting to delete gift: " + title + " " + key + " " + user.userName);
+                deleteGiftElement(key, title, uid, buyer);
+            };
+
+            //show modal
+            modal.style.display = "block";
+
+            //close on close
+            spanGift.onclick = function() {
+                modal.style.display = "none";
+            };
+
+            //close on click
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
         };
-      } else {
-        linkField.innerHTML = "There was no link provided";
-        linkField.onclick = function() {
-        };
-      }
-      if(description != "") {
-        descField.innerHTML = "Description: " + description;
-      } else {
-        descField.innerHTML = "There was no description provided";
-      }
-      titleField.innerHTML = title;
-      if(where != "") {
-        whereField.innerHTML = "This can be found at: " + where;
-      } else {
-        whereField.innerHTML = "There was no location provided";
-      }
-      if(date != undefined) {
-        if (date != "") {
-          giftCreationDate.innerHTML = "Created on: " + date;
-        } else {
-          giftCreationDate.innerHTML = "Creation date not available";
-        }
-      } else {
-        giftCreationDate.innerHTML = "Creation date not available";
-      }
-      updateBtn.onclick = function(){
-        updateGiftElement(uid);
-      };
-      deleteBtn.onclick = function(){
-        deleteGiftElement(key, title, uid, buyer);
-      };
-
-      //show modal
-      modal.style.display = "block";
-
-      //close on close
-      spanGift.onclick = function() {
-        modal.style.display = "none";
-      };
-
-      //close on click
-      window.onclick = function(event) {
-        if (event.target == modal) {
-          modal.style.display = "none";
-        }
-      }
-    };
-  }
+    }
 
 
   //This removes the gift's element from the webpage and deploys an empty gift list notification if necessary.
@@ -756,15 +755,13 @@ window.onload = function instantiate() {
 
 
   //This redirects the user to the giftAddUpdate page to update a specific gift.
-  function updateGiftElement(uid) {
-    giftStorage = uid;
-    privateList = "";
-    sessionStorage.setItem("privateList", JSON.stringify(privateList));
-    sessionStorage.setItem("validUser", JSON.stringify(user));
-    sessionStorage.setItem("userArr", JSON.stringify(userArr));
-    sessionStorage.setItem("giftStorage", JSON.stringify(giftStorage));
-    window.location.href = "giftAddUpdate.html";
-  }
+    function updateGiftElement(uid) {
+        giftStorage = uid;
+        privateList = "";
+        sessionStorage.setItem("privateList", JSON.stringify(privateList));
+        sessionStorage.setItem("giftStorage", JSON.stringify(giftStorage));
+        navigation(5);
+    }
 
 
   //This deletes a specific gift from the user's data in the database and adds a notification if it had a buyer
@@ -879,6 +876,26 @@ window.onload = function instantiate() {
     console.log("Added Notification To DB");
   }
 
+    function updateMaintenanceLog(locationData, detailsData) {
+        var today = new Date();
+        var UTChh = today.getUTCHours();
+        var UTCmm = today.getUTCMinutes();
+        var UTCss = today.getUTCSeconds();
+        var dd = today.getUTCDate();
+        var mm = today.getMonth()+1;
+        var yy = today.getFullYear();
+        var timeData = mm + "/" + dd + "/" + yy + " " + UTChh + ":" + UTCmm + ":" + UTCss;
+        var newUid = firebase.database().ref("maintenance").push();
+        newUid = newUid.toString();
+        newUid = newUid.substr(51, 70);
+
+        firebase.database().ref("maintenance/" + newUid).set({
+            uid: newUid,
+            location: locationData,
+            details: detailsData,
+            time: timeData
+        });
+    }
 
   //This function helps generate the notification data for each notification
   function generateNotificationString(giftOwner, giftTitle, pageName){
@@ -890,19 +907,19 @@ window.onload = function instantiate() {
 
 //This function deploys a notification that shows that the user's gift list is empty
 function deployGiftListEmptyNotification(){
-  try{
-    document.getElementById("TestGift").innerHTML = "No Gifts Found! Add Some Gifts With The Button Below!";
-  } catch(err){
-    console.log("Loading Element Missing, Creating A New One");
-    var liItem = document.createElement("LI");
-    liItem.id = "TestGift";
-    liItem.className = "gift";
-    var textNode = document.createTextNode("No Gifts Found! Add Some Gifts With The Button Below!");
-    liItem.appendChild(textNode);
-    giftList.insertBefore(liItem, document.getElementById("giftListContainer").childNodes[0]);
-  }
+    try{
+        document.getElementById("TestGift").innerHTML = "No Gifts Found! Add Some Gifts With The Button Below!";
+    } catch(err){
+        console.log("Loading Element Missing, Creating A New One");
+        var liItem = document.createElement("LI");
+        liItem.id = "TestGift";
+        liItem.className = "gift";
+        var textNode = document.createTextNode("No Gifts Found! Add Some Gifts With The Button Below!");
+        liItem.appendChild(textNode);
+        giftList.insertBefore(liItem, document.getElementById("giftListContainer").childNodes[0]);
+    }
 
-  clearInterval(offlineTimer);
+    clearInterval(offlineTimer);
 }
 
 
@@ -915,22 +932,27 @@ function signOut(){
 
 //This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
-  sessionStorage.setItem("validUser", JSON.stringify(user));
-  sessionStorage.setItem("userArr", JSON.stringify(userArr));
-  switch(nav){
-    case 0:
-      window.location.href = "home.html";
-      break;
-    case 1:
-      window.location.href = "lists.html";
-      break;
-    case 2:
-      window.location.href = "invites.html";
-      break;
-    case 3:
-      window.location.href = "settings.html";
-      break;
-    default:
-      break;
-  }
+    sessionStorage.setItem("validUser", JSON.stringify(user));
+    sessionStorage.setItem("userArr", JSON.stringify(userArr));
+    switch(nav){
+        case 0:
+            window.location.href = "home.html";
+            break;
+        case 1:
+            window.location.href = "lists.html";
+            break;
+        case 2:
+            window.location.href = "invites.html";
+            break;
+        case 3:
+            window.location.href = "settings.html";
+            break;
+        case 4:
+            window.location.href = "notifications.html";
+            break;
+        case 5:
+            window.location.href = "giftAddUpdate.html";
+        default:
+            break;
+    }
 }
