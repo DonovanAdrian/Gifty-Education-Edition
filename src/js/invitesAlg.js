@@ -16,6 +16,7 @@ var userArr = [];                       //An array that stores all the user data
 var areYouStillThereBool = false;       //A global boolean used to verify whether the user is active or inactive
 var readNotificationsBool = false;      //A boolean used to dictate whether all notifications have been read
 var invitesFound = false;               //A boolean used to assist the deployment of an empty friend list notification
+var friendListEmptyBool = false;        //A global boolean used to tell whether the friendList is empty or not
 
 var friendCount = 0;                    //An integer used to keep track of the number of friends loaded on the page
 var loadingTimerInt = 0;                //An integer used to keep track of how long it takes to load the list of gifts
@@ -49,65 +50,61 @@ var modal;                              //Stores the modal that is used for disp
 //This function will load an authenticated user's data from memory and updates various objects on the page based upon
 //the data that the user's object contains.
 function getCurrentUser(){
-  try {
-    user = JSON.parse(sessionStorage.validUser);
-    console.log("User: " + user.userName + " logged in");
-    if (user.invites == undefined) {
-      console.log("Invites Not Found");
-    } else if (user.invites != undefined) {
-      if (user.invites.length > 0) {
-        newInvite.style.display = "block";
-        inviteNote.style.background = "#ff3923";
-        invitesFound = true;
-      }
-    }
-    if (user.friends == undefined) {
-      deployFriendListEmptyNotification();
-    } else if (user.friends.length == 0) {
-      deployFriendListEmptyNotification();
-    } else {
-      //console.log(user.friends);
-    }
-
-    if (user.readNotifications == undefined) {
-      console.log("Read Notifications Not Found");
-    } else {
-      readNotificationsBool = true;
-    }
-
-    if (user.notifications == undefined) {
-      console.log("Notifications Not Found");
-    } else if (user.notifications != undefined) {
-      if (readNotificationsBool){
-        if (user.notifications.length > 0 && user.readNotifications.length != user.notifications.length) {
-          notificationBtn.src = "img/bellNotificationOn.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(user));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+    try {
+        user = JSON.parse(sessionStorage.validUser);
+        console.log("User: " + user.userName + " logged in");
+        if (user.invites == undefined) {
+            console.log("Invites Not Found");
+        } else if (user.invites != undefined) {
+            if (user.invites.length > 0) {
+                newInvite.style.display = "block";
+                inviteNote.style.background = "#ff3923";
+                invitesFound = true;
+            }
+        }
+        if (user.friends == undefined) {
+            deployFriendListEmptyNotification();
+            friendListEmptyBool = true;
+        } else if (user.friends.length == 0) {
+            deployFriendListEmptyNotification();
+            friendListEmptyBool = true;
         } else {
-          notificationBtn.src = "img/bellNotificationOff.png";
-          notificationBtn.onclick = function() {
-            sessionStorage.setItem("validUser", JSON.stringify(user));
-            sessionStorage.setItem("userArr", JSON.stringify(userArr));
-            window.location.href = "notifications.html";
-          }
+            //console.log(user.friends);
         }
-      } else if (user.notifications.length > 0) {
-        notificationBtn.src = "img/bellNotificationOn.png";
-        notificationBtn.onclick = function() {
-          sessionStorage.setItem("validUser", JSON.stringify(user));
-          sessionStorage.setItem("userArr", JSON.stringify(userArr));
-          window.location.href = "notifications.html";
+
+        if (user.readNotifications == undefined) {
+            console.log("Read Notifications Not Found");
+        } else {
+            readNotificationsBool = true;
         }
-      }
+
+        if (user.notifications == undefined) {
+            console.log("Notifications Not Found");
+        } else if (user.notifications != undefined) {
+            if (readNotificationsBool){
+                if (user.notifications.length > 0 && user.readNotifications.length != user.notifications.length) {
+                    notificationBtn.src = "img/bellNotificationOn.png";
+                    notificationBtn.onclick = function() {
+                        navigation(4);
+                    }
+                } else {
+                    notificationBtn.src = "img/bellNotificationOff.png";
+                    notificationBtn.onclick = function() {
+                        navigation(4);
+                    }
+                }
+            } else if (user.notifications.length > 0) {
+                notificationBtn.src = "img/bellNotificationOn.png";
+                notificationBtn.onclick = function() {
+                    navigation(4);
+                }
+            }
+        }
+        userArr = JSON.parse(sessionStorage.userArr);
+    } catch (err) {
+        console.log(err.toString());
+        window.location.href = "index.html";
     }
-    userArr = JSON.parse(sessionStorage.userArr);
-  } catch (err) {
-    console.log(err.toString());
-    window.location.href = "index.html";
-  }
 }
 
 
@@ -204,8 +201,7 @@ window.onload = function instantiate() {
   };
 
   newInvite.onclick = function() {
-    sessionStorage.setItem("validUser", JSON.stringify(user));
-    window.location.href = "confirmation.html";
+      navigation(5);
   };
 
   loadingTimer = setInterval(function(){
@@ -275,7 +271,11 @@ window.onload = function instantiate() {
       timeSecs = ("0" + timeSecs).slice(-2);
     }
 
-    modal.style.display = "none";
+    try {
+        modal.style.display = "none";
+    } catch (err) {
+        //console.log("Basic Modal Not Open");
+    }
     noteInfoField.innerHTML = "You have been inactive for 5 minutes, you will be logged out in " + timeMins
       + ":" + timeSecs + "!";
     noteTitleField.innerHTML = "Are You Still There?";
@@ -963,22 +963,28 @@ function signOut(){
 
 //This function assists the navigation tab in storing basic data before redirecting to another page
 function navigation(nav){
-  sessionStorage.setItem("validUser", JSON.stringify(user));
-  sessionStorage.setItem("userArr", JSON.stringify(userArr));
-  switch(nav){
-    case 0:
-      window.location.href = "home.html";
-      break;
-    case 1:
-      window.location.href = "lists.html";
-      break;
-    case 2:
-      window.location.href = "invites.html";
-      break;
-    case 3:
-      window.location.href = "settings.html";
-      break;
-    default:
-      break;
-  }
+    sessionStorage.setItem("validUser", JSON.stringify(user));
+    sessionStorage.setItem("userArr", JSON.stringify(userArr));
+    switch(nav){
+        case 0:
+            window.location.href = "home.html";
+            break;
+        case 1:
+            window.location.href = "lists.html";
+            break;
+        case 2:
+            window.location.href = "invites.html";
+            break;
+        case 3:
+            window.location.href = "settings.html";
+            break;
+        case 4:
+            window.location.href = "notifications.html";
+            break;
+        case 5:
+            window.location.href = "confirmation.html";
+            break;
+        default:
+            break;
+    }
 }
