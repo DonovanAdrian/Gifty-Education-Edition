@@ -72,6 +72,37 @@ window.onload = function instantiate() {
   };
 
   fetchConfigFile();
+
+  backgroundAlternator();
+
+  //This function changes the background color of the login to a predetermined set of colors
+  function backgroundAlternator(){
+    var nowBackground = 0;
+    var alternator = 0;
+    console.log("Background Alternator Feature Active");
+    setInterval(function(){
+        nowBackground = nowBackground + 1000;
+        if(nowBackground >= 15000){
+            nowBackground = 0;
+            if(alternator == 0) {
+                alternator++;
+                document.body.style.background = "#0041a3";
+            } else if (alternator == 1){
+                alternator++;
+                document.body.style.background = "#008222";
+            } else if (alternator == 2){
+                alternator++;
+                document.body.style.background = "#0b8781";
+            } else if (alternator == 3){
+                alternator++;
+                document.body.style.background = "#700b87";
+            } else {
+                alternator = 0;
+                document.body.style.background = "#870b0b";
+            }
+        }
+    }, 1000);
+}
 };
 
 
@@ -215,7 +246,7 @@ function initializeDatabase(){
   loginBtn.innerHTML = "Log In";
   loginBtn.onclick = function(){
     login();
-  }
+  };
   signUpFld.onclick = function(){
     signUp();
   }
@@ -239,7 +270,7 @@ function databaseQuery() {
       var i = findUIDItemInArr(data.key, userArr);
       if(userArr[i] != data.val() && i != -1){
         //console.log("Updating " + userArr[i].userName + " to most updated version: " + data.val().userName);
-        userArr[i] = data;
+        userArr[i] = data.val();
       }
     });
 
@@ -276,23 +307,23 @@ function login() {
   for(var i = 0; i < userArr.length; i++){
       //This prevents "case sensitive" usernames from being mis-interpreted
     if(userArr[i].userName.toLowerCase() == username.value.toLowerCase()){
-      try {
-        if(decode(userArr[i].encodeStr) == pin.value){
-          loginBool = true;
-          validUserInt = i;
-          break;
-        } else {
+        try {
+            if(decode(userArr[i].encodeStr) == pin.value){
+                loginBool = true;
+                validUserInt = i;
+                break;
+            } else {
 
-        }
-      } catch (err) {
-        if(userArr[i].pin == pin.value){
-          loginBool = true;
-          validUserInt = i;
-          break;
-        } else {
+            }
+        } catch (err) {
+            if(userArr[i].pin == pin.value){
+                loginBool = true;
+                validUserInt = i;
+                break;
+            } else {
 
+            }
         }
-      }
     }
   }
   if (loginBool === true){
@@ -303,7 +334,31 @@ function login() {
     window.location.href = "home.html";
   } else if (loginBool === false) {
     document.getElementById("loginInfo").innerHTML = "Username or Password Incorrect";
+    updateMaintenanceLog("index", "Invalid Login: " + username.value.toLowerCase() + " " + pin.value.toString());
   }
+}
+
+
+//This function adds specific data to a maintenance log stored in the DB
+function updateMaintenanceLog(locationData, detailsData) {
+    var today = new Date();
+    var UTChh = today.getUTCHours();
+    var UTCmm = today.getUTCMinutes();
+    var UTCss = today.getUTCSeconds();
+    var dd = today.getUTCDate();
+    var mm = today.getMonth()+1;
+    var yy = today.getFullYear();
+    var timeData = mm + "/" + dd + "/" + yy + " " + UTChh + ":" + UTCmm + ":" + UTCss;
+    var newUid = firebase.database().ref("maintenance").push();
+    newUid = newUid.toString();
+    newUid = newUid.substr(51, 70);
+
+    firebase.database().ref("maintenance/" + newUid).set({
+        uid: newUid,
+        location: locationData,
+        details: detailsData,
+        time: timeData
+    });
 }
 
 
