@@ -2,9 +2,17 @@
 > made by Donovan Adrian in JavaScript, HTML, and CSS
 
 
-## ***Task List***
-- [x] Add Helpful Comments
-- [ ] Create a Data Flow Diagram for each page
+## ***Why Did This Get Archived?***
+I personally didn't feel like this was all that helpful 
+of a repository to maintain, as all of the helpful 
+comments that I added to each page were extremely general, 
+and really only provided a surface-level description for 
+each repository. As a result, I'm not interested in 
+continuing to update this repository, but I will retain 
+it's visibility on Github in case it is useful for others 
+to review. It should be noted that due to it's current 
+state, it's only on Gifty 1.1, so much of it's data is 
+long since "obsolete".
 
 
 ## Website Structure
@@ -41,11 +49,3 @@ skills to see what I'm doing with all of the data that I
 have organized. Perhaps at some point I will draw up a more 
 serious diagram of how data flows through the system in light
 of this.
-
-
-## Do You Have Any Other Plans For This Program?
-At this time, I am in the process of editing each page to 
-include the aforementioned helpful comments. Once I have 
-completed updating each page here, I will update each page 
-as it is updated on the official Gifty repository. Apart from 
-that, I do not have any additional plans at this time.
